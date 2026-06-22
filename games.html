@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Reaction Game</title>
+    <title>Games</title>
 
     <style>
         body {
@@ -9,238 +9,268 @@
             text-align: center;
             background: #111;
             color: white;
-            margin-top: 60px;
+            margin-top: 50px;
         }
 
-        h1 {
+        h1, h2 {
             color: #4da3ff;
         }
 
+        a {
+            color: #4da3ff;
+            margin: 10px;
+            text-decoration: none;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
         #box {
-            width: 250px;
-            height: 250px;
-            margin: 40px auto;
+            width: 220px;
+            height: 220px;
+            margin: 30px auto;
             background: red;
             display: none;
             cursor: pointer;
             border-radius: 10px;
         }
 
-        button {
-            padding: 12px 20px;
-            font-size: 18px;
-            cursor: pointer;
-            margin-top: 20px;
+        #playerCards, #dealerCards {
+            font-size: 22px;
+            margin: 10px;
         }
 
-        a {
-            color: #4da3ff;
+        hr {
+            margin: 40px 0;
         }
     </style>
 </head>
 
 <body>
 
-    <h1>Reaction Time Game</h1>
-    <p>Click start, then click the box as fast as you can when it appears.</p>
+    <h1>Games Arcade</h1>
+
+    <a href="index.html">Home</a> |
+    <a href="about.html">About</a> |
+    <a href="games.html">Games</a>
+
+    <!-- ================= REACTION GAME ================= -->
+    <hr>
+
+    <h2>Reaction Time Game</h2>
+    <p>Click start, then click green as fast as you can</p>
 
     <button onclick="startGame()">Start</button>
 
     <div id="box"></div>
 
-    <h2 id="result"></h2>
+    <h3 id="result"></h3>
 
-    <p>
-        <a href="index.html">Home</a> |
-        <a href="about.html">About</a>
-    </p>
-
-    <script>
-    let startTime = 0;
-    let canClick = false;
-
-    let bestTime = localStorage.getItem("bestTime");
-    bestTime = bestTime ? parseInt(bestTime) : null;
-
-    function updateBest(time) {
-        if (bestTime === null || time < bestTime) {
-            bestTime = time;
-            localStorage.setItem("bestTime", bestTime);
-        }
-    }
-
-    function startGame() {
-        const box = document.getElementById("box");
-        const result = document.getElementById("result");
-
-        result.innerText = "";
-        canClick = false;
-
-        box.style.display = "none";
-        box.style.backgroundColor = "red";
-
-        let delay = Math.random() * 4000 + 1000;
-
-        setTimeout(() => {
-            box.style.display = "block";
-            box.style.backgroundColor = "green";
-            startTime = Date.now();
-            canClick = true;
-        }, delay);
-    }
-
-    document.getElementById("box").onclick = function () {
-        const result = document.getElementById("result");
-
-        // ❌ FALSE START
-        if (!canClick) {
-            result.innerText = "Too soon! Wait for green.";
-            this.style.display = "none";
-            return;
-        }
-
-        // ✅ VALID CLICK
-        let reactionTime = Date.now() - startTime;
-
-        updateBest(reactionTime);
-
-        let text = "Your reaction time: " + reactionTime + " ms";
-
-        if (bestTime !== null) {
-            text += "\nBest time: " + bestTime + " ms";
-        }
-
-        result.innerText = text;
-
-        this.style.display = "none";
-        canClick = false;
-    };
-</script>
-
+    <!-- ================= BLACKJACK ================= -->
     <hr>
 
-<h2>Blackjack</h2>
+    <h2>Blackjack</h2>
 
-<h3>Dealer: <span id="dealerScore">0</span></h3>
-<div id="dealerCards"></div>
+    <h3>Dealer: <span id="dealerScore">0</span></h3>
+    <div id="dealerCards"></div>
 
-<h3>You: <span id="playerScore">0</span></h3>
-<div id="playerCards"></div>
+    <h3>You: <span id="playerScore">0</span></h3>
+    <div id="playerCards"></div>
 
-<button onclick="startBlackjack()">Start Game</button>
-<button onclick="hit()" id="hitBtn" disabled>Hit</button>
-<button onclick="stand()" id="standBtn" disabled>Stand</button>
+    <button onclick="startBlackjack()">Start Game</button>
+    <button onclick="hit()" id="hitBtn" disabled>Hit</button>
+    <button onclick="stand()" id="standBtn" disabled>Stand</button>
+    <button onclick="resetBlackjack()">Reset</button>
 
-<h3 id="blackjackResult"></h3>
+    <h3 id="blackjackResult"></h3>
+
+    <!-- ================= SCRIPT ================= -->
     <script>
-let deck = [];
-let playerCards = [];
-let dealerCards = [];
-let gameActive = false;
+        // ================= REACTION GAME =================
+        let startTime = 0;
+        let canClick = false;
 
-function createDeck() {
-    const suits = ["♠", "♥", "♦", "♣"];
-    const values = [2,3,4,5,6,7,8,9,10,"J","Q","K","A"];
+        let bestTime = localStorage.getItem("bestTime");
+        bestTime = bestTime ? parseInt(bestTime) : null;
 
-    deck = [];
+        function startGame() {
+            const box = document.getElementById("box");
+            const result = document.getElementById("result");
 
-    for (let s of suits) {
-        for (let v of values) {
-            deck.push({ suit: s, value: v });
+            result.innerText = "";
+            canClick = false;
+
+            box.style.display = "none";
+            box.style.backgroundColor = "red";
+
+            let delay = Math.random() * 4000 + 1000;
+
+            setTimeout(() => {
+                box.style.display = "block";
+                box.style.backgroundColor = "green";
+                startTime = Date.now();
+                canClick = true;
+            }, delay);
         }
-    }
 
-    deck.sort(() => Math.random() - 0.5);
-}
+        document.getElementById("box").onclick = function () {
+            const result = document.getElementById("result");
 
-function cardValue(card) {
-    if (card.value === "J" || card.value === "Q" || card.value === "K") return 10;
-    if (card.value === "A") return 11;
-    return card.value;
-}
+            if (!canClick) {
+                result.innerText = "Too soon! Wait for green.";
+                this.style.display = "none";
+                return;
+            }
 
-function calculateScore(cards) {
-    let score = 0;
-    let aces = 0;
+            let reactionTime = Date.now() - startTime;
 
-    for (let c of cards) {
-        score += cardValue(c);
-        if (c.value === "A") aces++;
-    }
+            if (bestTime === null || reactionTime < bestTime) {
+                bestTime = reactionTime;
+                localStorage.setItem("bestTime", bestTime);
+            }
 
-    while (score > 21 && aces > 0) {
-        score -= 10;
-        aces--;
-    }
+            let text = "Your reaction time: " + reactionTime + " ms";
 
-    return score;
-}
+            if (bestTime !== null) {
+                text += "\nBest time: " + bestTime + " ms";
+            }
 
-function render() {
-    document.getElementById("playerCards").innerText =
-        playerCards.map(c => c.value + c.suit).join(" ");
+            result.innerText = text;
 
-    document.getElementById("dealerCards").innerText =
-        dealerCards.map(c => c.value + c.suit).join(" ");
+            this.style.display = "none";
+            canClick = false;
+        };
 
-    document.getElementById("playerScore").innerText = calculateScore(playerCards);
-    document.getElementById("dealerScore").innerText = calculateScore(dealerCards);
-}
+        // ================= BLACKJACK =================
+        let deck = [];
+        let playerCards = [];
+        let dealerCards = [];
+        let gameActive = false;
 
-function startBlackjack() {
-    createDeck();
+        function createDeck() {
+            const suits = ["♠", "♥", "♦", "♣"];
+            const values = [2,3,4,5,6,7,8,9,10,"J","Q","K","A"];
 
-    playerCards = [deck.pop(), deck.pop()];
-    dealerCards = [deck.pop(), deck.pop()];
+            deck = [];
 
-    gameActive = true;
+            for (let s of suits) {
+                for (let v of values) {
+                    deck.push({ suit: s, value: v });
+                }
+            }
 
-    document.getElementById("hitBtn").disabled = false;
-    document.getElementById("standBtn").disabled = false;
-    document.getElementById("blackjackResult").innerText = "";
+            deck.sort(() => Math.random() - 0.5);
+        }
 
-    render();
-}
+        function cardValue(card) {
+            if (card.value === "J" || card.value === "Q" || card.value === "K") return 10;
+            if (card.value === "A") return 11;
+            return card.value;
+        }
 
-function hit() {
-    if (!gameActive) return;
+        function calculateScore(cards) {
+            let score = 0;
+            let aces = 0;
 
-    playerCards.push(deck.pop());
-    render();
+            for (let c of cards) {
+                score += cardValue(c);
+                if (c.value === "A") aces++;
+            }
 
-    if (calculateScore(playerCards) > 21) {
-        endGame("You bust 💀 Dealer wins");
-    }
-}
+            while (score > 21 && aces > 0) {
+                score -= 10;
+                aces--;
+            }
 
-function stand() {
-    if (!gameActive) return;
+            return score;
+        }
 
-    while (calculateScore(dealerCards) < 17) {
-        dealerCards.push(deck.pop());
-    }
+        function render() {
+            document.getElementById("playerCards").innerText =
+                playerCards.map(c => c.value + c.suit).join(" ");
 
-    let playerScore = calculateScore(playerCards);
-    let dealerScore = calculateScore(dealerCards);
+            document.getElementById("dealerCards").innerText =
+                dealerCards.map(c => c.value + c.suit).join(" ");
 
-    if (dealerScore > 21 || playerScore > dealerScore) {
-        endGame("You win 🎉");
-    } else if (playerScore < dealerScore) {
-        endGame("Dealer wins 😬");
-    } else {
-        endGame("Draw 🤝");
-    }
-}
+            document.getElementById("playerScore").innerText = calculateScore(playerCards);
+            document.getElementById("dealerScore").innerText = calculateScore(dealerCards);
+        }
 
-function endGame(text) {
-    gameActive = false;
+        function startBlackjack() {
+            createDeck();
 
-    document.getElementById("blackjackResult").innerText = text;
+            playerCards = [deck.pop(), deck.pop()];
+            dealerCards = [deck.pop(), deck.pop()];
 
-    document.getElementById("hitBtn").disabled = true;
-    document.getElementById("standBtn").disabled = true;
-}
+            gameActive = true;
 
-         </script>
+            document.getElementById("hitBtn").disabled = false;
+            document.getElementById("standBtn").disabled = false;
+            document.getElementById("blackjackResult").innerText = "";
+
+            render();
+        }
+
+        function hit() {
+            if (!gameActive) return;
+
+            playerCards.push(deck.pop());
+            render();
+
+            if (calculateScore(playerCards) > 21) {
+                endGame("You bust 💀 Dealer wins");
+            }
+        }
+
+        function stand() {
+            if (!gameActive) return;
+
+            while (calculateScore(dealerCards) < 17) {
+                dealerCards.push(deck.pop());
+            }
+
+            let playerScore = calculateScore(playerCards);
+            let dealerScore = calculateScore(dealerCards);
+
+            if (dealerScore > 21 || playerScore > dealerScore) {
+                endGame("You win 🎉");
+            } else if (playerScore < dealerScore) {
+                endGame("Dealer wins 😬");
+            } else {
+                endGame("Draw 🤝");
+            }
+        }
+
+        function endGame(text) {
+            gameActive = false;
+
+            document.getElementById("blackjackResult").innerText = text;
+
+            document.getElementById("hitBtn").disabled = true;
+            document.getElementById("standBtn").disabled = true;
+        }
+
+        function resetBlackjack() {
+            playerCards = [];
+            dealerCards = [];
+            gameActive = false;
+
+            document.getElementById("playerCards").innerText = "";
+            document.getElementById("dealerCards").innerText = "";
+
+            document.getElementById("playerScore").innerText = "0";
+            document.getElementById("dealerScore").innerText = "0";
+
+            document.getElementById("blackjackResult").innerText = "";
+
+            document.getElementById("hitBtn").disabled = true;
+            document.getElementById("standBtn").disabled = true;
+        }
+    </script>
+
 </body>
 </html>
