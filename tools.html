@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Mini Tools</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    background:linear-gradient(135deg,#0f172a,#111827);
+    color:white;
+}
+
+/* NAVBAR */
+
+    
+.navbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 25px;
+    background:#111827;
+    border-bottom:1px solid #334155;
+}
+
+.logo{
+    font-size:18px;
+    font-weight:bold;
+    color:#60a5fa;
+}
+
+.links a{
+    color:white;
+    text-decoration:none;
+    margin-left:15px;
+    padding:8px 12px;
+    border-radius:8px;
+}
+
+.links a:hover{
+    background:#2563eb;
+}
+
+.container{
+    text-align:center;
+    padding:40px;
+}
+
+.card{
+    display:inline-block;
+    background:#1f2937;
+    padding:20px;
+    margin:15px;
+    border-radius:15px;
+    width:220px;
+}
+
+button{
+    padding:10px 15px;
+    margin-top:10px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+
+    <div class="logo">🛠 Mini Tools</div>
+
+    <div class="links">
+        <a href="index.html">Home</a>
+        <a href="games.html">Games</a>
+        <a href="tools.html">Tools</a>
+        <a href="tools.html" class="active">Tools</a>
+    </div>
+
+</div>
+
+<div class="container">
+
+<h1>🛠 Mini Tools</h1>
+
+<div class="card">
+<h3>🎲 Random Number</h3>
+<p id="num">-</p>
+<button onclick="randomNum()">Generate</button>
+</div>
+
+<div class="card">
+<h3>🪙 Coin Flip</h3>
+<p id="coin">-</p>
+<button onclick="flip()">Flip</button>
+</div>
+
+<div class="card">
+<h3>⏱ Timer (5s)</h3>
+<p id="timer">Ready</p>
+<button onclick="startTimer()">Start</button>
+</div>
+
+</div>
+
+<script>
+
+function randomNum(){
+    document.getElementById("num").innerText =
+    Math.floor(Math.random()*100)+1;
+}
+
+function flip(){
+    let r = Math.random() < 0.5 ? "Heads" : "Tails";
+    document.getElementById("coin").innerText = r;
+}
+
+function startTimer(){
+    document.getElementById("timer").innerText = "Running...";
+
+    setTimeout(()=>{
+        document.getElementById("timer").innerText = "Done!";
+    },5000);
+}
+
+</script>
+
+</body>
+</html>
