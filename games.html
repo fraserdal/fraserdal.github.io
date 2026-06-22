@@ -17,7 +17,6 @@
             margin-top: 20px;
         }
 
-        /* MENU TILES */
         #menu {
             padding: 30px;
         }
@@ -30,7 +29,6 @@
             width: 180px;
             cursor: pointer;
             border-radius: 10px;
-            font-size: 18px;
             transition: 0.2s;
         }
 
@@ -39,7 +37,6 @@
             color: black;
         }
 
-        /* GAME SECTIONS */
         .game {
             display: none;
             padding: 20px;
@@ -53,7 +50,8 @@
 
         canvas {
             background: black;
-            margin-top: 10px;
+            display: block;
+            margin: 20px auto;
         }
 
         #target {
@@ -65,6 +63,16 @@
             border-radius: 50%;
             cursor: pointer;
         }
+
+        /* FIX MEMORY CENTERING */
+        #memoryBox {
+            margin-top: 20px;
+        }
+
+        input {
+            padding: 8px;
+            font-size: 16px;
+        }
     </style>
 </head>
 
@@ -72,51 +80,56 @@
 
 <h1>Mini Arcade</h1>
 
-<!-- ================= MENU ================= -->
+<!-- MENU -->
 <div id="menu">
-
     <div class="tile" onclick="showGame('aim')">🎯 Aim Trainer</div>
     <div class="tile" onclick="showGame('snake')">🐍 Snake</div>
     <div class="tile" onclick="showGame('flappy')">🐦 Flappy Bird</div>
     <div class="tile" onclick="showGame('memory')">🧠 Memory Game</div>
-
 </div>
 
-<!-- ================= AIM TRAINER ================= -->
+<!-- AIM -->
 <div id="aim" class="game">
-    <h2>🎯 Aim Trainer</h2>
+    <h2>Aim Trainer</h2>
     <button onclick="startAim()">Start</button>
     <button onclick="backToMenu()">⬅ Back</button>
     <h3 id="aimScore"></h3>
     <div id="target" onclick="hitTarget()"></div>
 </div>
 
-<!-- ================= SNAKE ================= -->
+<!-- SNAKE -->
 <div id="snake" class="game">
-    <h2>🐍 Snake</h2>
+    <h2>Snake</h2>
     <button onclick="backToMenu()">⬅ Back</button>
     <canvas id="snakeCanvas" width="300" height="300"></canvas>
 </div>
 
-<!-- ================= FLAPPY ================= -->
+<!-- FLAPPY -->
 <div id="flappy" class="game">
-    <h2>🐦 Flappy Bird</h2>
+    <h2>Flappy Bird</h2>
     <button onclick="backToMenu()">⬅ Back</button>
     <canvas id="flappyCanvas" width="300" height="300"></canvas>
 </div>
 
-<!-- ================= MEMORY ================= -->
+<!-- MEMORY -->
 <div id="memory" class="game">
-    <h2>🧠 Memory Game</h2>
+    <h2>Memory Game</h2>
     <button onclick="startMemory()">Start</button>
     <button onclick="backToMenu()">⬅ Back</button>
-    <h3 id="memoryText"></h3>
+
+    <div id="memoryBox">
+        <h3 id="memoryText"></h3>
+
+        <input id="memoryInput" placeholder="Type number here">
+        <button onclick="checkMemory()">Submit</button>
+
+        <h3 id="memoryResult"></h3>
+    </div>
 </div>
 
-<!-- ================= SCRIPT ================= -->
 <script>
 
-/* MENU SYSTEM */
+/* MENU */
 function showGame(id) {
     document.getElementById("menu").style.display = "none";
 
@@ -135,7 +148,7 @@ function backToMenu() {
     });
 }
 
-/* ================= AIM TRAINER ================= */
+/* AIM */
 let startTime;
 
 function startAim() {
@@ -157,7 +170,7 @@ function hitTarget() {
     startAim();
 }
 
-/* ================= SNAKE ================= */
+/* SNAKE */
 const snakeCanvas = document.getElementById("snakeCanvas");
 const sctx = snakeCanvas.getContext("2d");
 
@@ -190,7 +203,7 @@ function snakeGame() {
 
 setInterval(snakeGame, 120);
 
-/* ================= FLAPPY ================= */
+/* FLAPPY */
 const fcanvas = document.getElementById("flappyCanvas");
 const fctx = fcanvas.getContext("2d");
 
@@ -216,17 +229,38 @@ function flappyGame() {
 
 setInterval(flappyGame, 30);
 
-/* ================= MEMORY ================= */
+/* MEMORY */
+let memoryNumber = 0;
+let memoryActive = false;
+
 function startMemory() {
-    let num = Math.floor(Math.random() * 5) + 1;
+    memoryNumber = Math.floor(Math.random() * 5) + 1;
+    memoryActive = true;
+
+    document.getElementById("memoryResult").innerText = "";
+    document.getElementById("memoryInput").value = "";
 
     document.getElementById("memoryText").innerText =
-        "Remember: " + num;
+        "Remember: " + memoryNumber;
 
     setTimeout(() => {
         document.getElementById("memoryText").innerText =
-            "What was it?";
+            "Now type it!";
     }, 2000);
+}
+
+function checkMemory() {
+    let guess = Number(document.getElementById("memoryInput").value);
+
+    if (!memoryActive) return;
+
+    if (guess === memoryNumber) {
+        document.getElementById("memoryResult").innerText = "Correct!";
+    } else {
+        document.getElementById("memoryResult").innerText = "Wrong!";
+    }
+
+    memoryActive = false;
 }
 
 </script>
