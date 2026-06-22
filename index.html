@@ -6,58 +6,52 @@
 <style>
 body{
     margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
     font-family:Arial;
-    background:radial-gradient(circle at top,#1f2937,#0f172a);
+    background:linear-gradient(135deg,#0f172a,#111827);
     color:white;
     text-align:center;
 }
 
 h1{
     font-size:50px;
-    margin-top:40px;
+    margin-bottom:10px;
     color:#60a5fa;
     text-shadow:0 0 20px #3b82f6;
 }
 
-.subtitle{
+p{
     color:#cbd5e1;
     margin-bottom:30px;
 }
 
-.container{
-    display:flex;
-    justify-content:center;
-    flex-wrap:wrap;
-    gap:20px;
-    padding:30px;
+a{
+    text-decoration:none;
 }
 
-.card{
-    width:220px;
-    padding:25px;
-    background:#111827;
-    border:1px solid #334155;
-    border-radius:15px;
-    cursor:pointer;
-    transition:.25s;
-    box-shadow:0 0 10px rgba(0,0,0,0.4);
+.button{
+    padding:15px 25px;
+    background:#2563eb;
+    color:white;
+    border-radius:10px;
+    font-size:18px;
+    transition:.2s;
 }
 
-.card:hover{
-    transform:translateY(-10px) scale(1.05);
-    border-color:#60a5fa;
-    box-shadow:0 0 25px rgba(96,165,250,0.5);
-}
-
-.icon{
-    font-size:40px;
-    margin-bottom:10px;
+.button:hover{
+    background:#3b82f6;
+    transform:scale(1.05);
 }
 
 .footer{
-    margin-top:40px;
+    position:absolute;
+    bottom:15px;
+    font-size:12px;
     color:#64748b;
-    font-size:14px;
 }
 </style>
 
@@ -66,41 +60,13 @@ h1{
 <body>
 
 <h1>🎮 Fraser's Arcade</h1>
-<p class="subtitle">Pick a game and see how good you are</p>
+<p>Simple web arcade with mini games</p>
 
-<div class="container">
-
-<div class="card" onclick="go('games.html#reaction')">
-<div class="icon">⚡</div>
-<h3>Reaction Time</h3>
-</div>
-
-<div class="card" onclick="go('games.html#ttt')">
-<div class="icon">❌⭕</div>
-<h3>Tic Tac Toe</h3>
-</div>
-
-<div class="card" onclick="go('games.html#rps')">
-<div class="icon">🪨</div>
-<h3>Rock Paper Scissors</h3>
-</div>
-
-<div class="card" onclick="go('games.html#higher')">
-<div class="icon">🎲</div>
-<h3>Higher or Lower</h3>
-</div>
-
-</div>
+<a href="games.html" class="button">▶ Enter Arcade</a>
 
 <div class="footer">
-Made for fun • Hosted on GitHub Pages
+Hosted on GitHub Pages
 </div>
-
-<script>
-function go(page){
-    window.location.href = page;
-}
-</script>
 
 </body>
 </html>
