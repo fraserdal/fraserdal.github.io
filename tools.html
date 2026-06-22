@@ -2,8 +2,26 @@
 <html>
 <head>
 <title>Mini Tools</title>
-
+<button class="homeBtn" onclick="goHome()">🏠 Back to Home</button>
+    
 <style>
+    .homeBtn{
+    margin:10px auto 20px;
+    display:block;
+    padding:12px 18px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.homeBtn:hover{
+    background:#3b82f6;
+    transform:scale(1.05);
+}
 body{
     margin:0;
     font-family:Arial;
@@ -106,6 +124,12 @@ button{
 </div>
 
 <script>
+
+    <script>
+function goHome(){
+    window.location.href = "index.html";
+}
+</script>
 
 function randomNum(){
     document.getElementById("num").innerText =
