@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Arcade Games</title>
+    <title>Mini Arcade</title>
 
     <style>
         body {
@@ -17,9 +17,32 @@
             margin-top: 20px;
         }
 
+        /* MENU TILES */
+        #menu {
+            padding: 30px;
+        }
+
+        .tile {
+            display: inline-block;
+            background: #222;
+            padding: 20px;
+            margin: 10px;
+            width: 180px;
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 18px;
+            transition: 0.2s;
+        }
+
+        .tile:hover {
+            background: #4da3ff;
+            color: black;
+        }
+
+        /* GAME SECTIONS */
         .game {
-            border-top: 1px solid #333;
-            padding: 40px 10px;
+            display: none;
+            padding: 20px;
         }
 
         button {
@@ -45,41 +68,168 @@
     </style>
 </head>
 
+<body>
+
 <h1>Mini Arcade</h1>
 
+<!-- ================= MENU ================= -->
 <div id="menu">
 
     <div class="tile" onclick="showGame('aim')">🎯 Aim Trainer</div>
     <div class="tile" onclick="showGame('snake')">🐍 Snake</div>
     <div class="tile" onclick="showGame('flappy')">🐦 Flappy Bird</div>
-    <div class="tile" onclick="showGame('memory')">🧠 Memory</div>
+    <div class="tile" onclick="showGame('memory')">🧠 Memory Game</div>
 
 </div>
 
-<!-- AIM -->
+<!-- ================= AIM TRAINER ================= -->
 <div id="aim" class="game">
-    <h2>Aim Trainer</h2>
+    <h2>🎯 Aim Trainer</h2>
     <button onclick="startAim()">Start</button>
+    <button onclick="backToMenu()">⬅ Back</button>
     <h3 id="aimScore"></h3>
     <div id="target" onclick="hitTarget()"></div>
 </div>
 
-<!-- SNAKE -->
+<!-- ================= SNAKE ================= -->
 <div id="snake" class="game">
-    <h2>Snake</h2>
+    <h2>🐍 Snake</h2>
+    <button onclick="backToMenu()">⬅ Back</button>
     <canvas id="snakeCanvas" width="300" height="300"></canvas>
 </div>
 
-<!-- FLAPPY -->
+<!-- ================= FLAPPY ================= -->
 <div id="flappy" class="game">
-    <h2>Flappy Bird</h2>
+    <h2>🐦 Flappy Bird</h2>
+    <button onclick="backToMenu()">⬅ Back</button>
     <canvas id="flappyCanvas" width="300" height="300"></canvas>
 </div>
 
-<!-- MEMORY -->
+<!-- ================= MEMORY ================= -->
 <div id="memory" class="game">
-    <h2>Memory Game</h2>
+    <h2>🧠 Memory Game</h2>
     <button onclick="startMemory()">Start</button>
+    <button onclick="backToMenu()">⬅ Back</button>
     <h3 id="memoryText"></h3>
 </div>
+
+<!-- ================= SCRIPT ================= -->
+<script>
+
+/* MENU SYSTEM */
+function showGame(id) {
+    document.getElementById("menu").style.display = "none";
+
+    document.querySelectorAll(".game").forEach(g => {
+        g.style.display = "none";
+    });
+
+    document.getElementById(id).style.display = "block";
+}
+
+function backToMenu() {
+    document.getElementById("menu").style.display = "block";
+
+    document.querySelectorAll(".game").forEach(g => {
+        g.style.display = "none";
+    });
+}
+
+/* ================= AIM TRAINER ================= */
+let startTime;
+
+function startAim() {
+    const target = document.getElementById("target");
+
+    target.style.display = "block";
+    target.style.left = Math.random() * 250 + "px";
+    target.style.top = Math.random() * 300 + "px";
+
+    startTime = Date.now();
+}
+
+function hitTarget() {
+    let time = Date.now() - startTime;
+
+    document.getElementById("aimScore").innerText =
+        "Time: " + time + " ms";
+
+    startAim();
+}
+
+/* ================= SNAKE ================= */
+const snakeCanvas = document.getElementById("snakeCanvas");
+const sctx = snakeCanvas.getContext("2d");
+
+let snake = [{x: 150, y: 150}];
+let dir = {x: 10, y: 0};
+
+document.addEventListener("keydown", e => {
+    if (e.key === "ArrowUp") dir = {x: 0, y: -10};
+    if (e.key === "ArrowDown") dir = {x: 0, y: 10};
+    if (e.key === "ArrowLeft") dir = {x: -10, y: 0};
+    if (e.key === "ArrowRight") dir = {x: 10, y: 0};
+});
+
+function snakeGame() {
+    let head = {
+        x: snake[0].x + dir.x,
+        y: snake[0].y + dir.y
+    };
+
+    snake.unshift(head);
+    snake.pop();
+
+    sctx.clearRect(0,0,300,300);
+
+    snake.forEach(s => {
+        sctx.fillStyle = "lime";
+        sctx.fillRect(s.x, s.y, 10, 10);
+    });
+}
+
+setInterval(snakeGame, 120);
+
+/* ================= FLAPPY ================= */
+const fcanvas = document.getElementById("flappyCanvas");
+const fctx = fcanvas.getContext("2d");
+
+let birdY = 150;
+let velocity = 0;
+let gravity = 0.5;
+
+document.addEventListener("click", () => {
+    if (document.getElementById("flappy").style.display === "block") {
+        velocity = -6;
+    }
+});
+
+function flappyGame() {
+    velocity += gravity;
+    birdY += velocity;
+
+    fctx.clearRect(0,0,300,300);
+
+    fctx.fillStyle = "yellow";
+    fctx.fillRect(50, birdY, 20, 20);
+}
+
+setInterval(flappyGame, 30);
+
+/* ================= MEMORY ================= */
+function startMemory() {
+    let num = Math.floor(Math.random() * 5) + 1;
+
+    document.getElementById("memoryText").innerText =
+        "Remember: " + num;
+
+    setTimeout(() => {
+        document.getElementById("memoryText").innerText =
+            "What was it?";
+    }, 2000);
+}
+
+</script>
+
+</body>
 </html>
