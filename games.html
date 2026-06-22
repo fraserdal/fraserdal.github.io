@@ -116,8 +116,131 @@
         canClick = false;
     };
 </script>
-   
-    
 
+    <hr>
+
+<h2>Blackjack</h2>
+
+<h3>Dealer: <span id="dealerScore">0</span></h3>
+<div id="dealerCards"></div>
+
+<h3>You: <span id="playerScore">0</span></h3>
+<div id="playerCards"></div>
+
+<button onclick="startBlackjack()">Start Game</button>
+<button onclick="hit()" id="hitBtn" disabled>Hit</button>
+<button onclick="stand()" id="standBtn" disabled>Stand</button>
+
+<h3 id="blackjackResult"></h3>
+    <script>
+let deck = [];
+let playerCards = [];
+let dealerCards = [];
+let gameActive = false;
+
+function createDeck() {
+    const suits = ["♠", "♥", "♦", "♣"];
+    const values = [2,3,4,5,6,7,8,9,10,"J","Q","K","A"];
+
+    deck = [];
+
+    for (let s of suits) {
+        for (let v of values) {
+            deck.push({ suit: s, value: v });
+        }
+    }
+
+    deck.sort(() => Math.random() - 0.5);
+}
+
+function cardValue(card) {
+    if (card.value === "J" || card.value === "Q" || card.value === "K") return 10;
+    if (card.value === "A") return 11;
+    return card.value;
+}
+
+function calculateScore(cards) {
+    let score = 0;
+    let aces = 0;
+
+    for (let c of cards) {
+        score += cardValue(c);
+        if (c.value === "A") aces++;
+    }
+
+    while (score > 21 && aces > 0) {
+        score -= 10;
+        aces--;
+    }
+
+    return score;
+}
+
+function render() {
+    document.getElementById("playerCards").innerText =
+        playerCards.map(c => c.value + c.suit).join(" ");
+
+    document.getElementById("dealerCards").innerText =
+        dealerCards.map(c => c.value + c.suit).join(" ");
+
+    document.getElementById("playerScore").innerText = calculateScore(playerCards);
+    document.getElementById("dealerScore").innerText = calculateScore(dealerCards);
+}
+
+function startBlackjack() {
+    createDeck();
+
+    playerCards = [deck.pop(), deck.pop()];
+    dealerCards = [deck.pop(), deck.pop()];
+
+    gameActive = true;
+
+    document.getElementById("hitBtn").disabled = false;
+    document.getElementById("standBtn").disabled = false;
+    document.getElementById("blackjackResult").innerText = "";
+
+    render();
+}
+
+function hit() {
+    if (!gameActive) return;
+
+    playerCards.push(deck.pop());
+    render();
+
+    if (calculateScore(playerCards) > 21) {
+        endGame("You bust 💀 Dealer wins");
+    }
+}
+
+function stand() {
+    if (!gameActive) return;
+
+    while (calculateScore(dealerCards) < 17) {
+        dealerCards.push(deck.pop());
+    }
+
+    let playerScore = calculateScore(playerCards);
+    let dealerScore = calculateScore(dealerCards);
+
+    if (dealerScore > 21 || playerScore > dealerScore) {
+        endGame("You win 🎉");
+    } else if (playerScore < dealerScore) {
+        endGame("Dealer wins 😬");
+    } else {
+        endGame("Draw 🤝");
+    }
+}
+
+function endGame(text) {
+    gameActive = false;
+
+    document.getElementById("blackjackResult").innerText = text;
+
+    document.getElementById("hitBtn").disabled = true;
+    document.getElementById("standBtn").disabled = true;
+}
+
+         </script>
 </body>
 </html>
