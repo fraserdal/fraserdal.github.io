@@ -117,10 +117,14 @@ button{
 <!-- TIC TAC TOE -->
 <div id="ttt" class="game">
 
-<h2>❌⭕ Tic-Tac-Toe (AI)</h2>
+<h2>❌⭕ Tic-Tac-Toe</h2>
 
+<button onclick="setMode('ai')">🤖 AI</button>
+<button onclick="setMode('multi')">👥 2 Player</button>
 <button onclick="resetTTT()">Reset</button>
 <button onclick="back()">Back</button>
+
+<h3 id="modeText"></h3>
 
 <div id="board"></div>
 
@@ -225,6 +229,15 @@ document.getElementById("reactionBox").onclick=function(){
 /* TIC TAC TOE AI */
 let board=["","","","","","","","",""];
 let player="X";
+let mode="ai";
+let gameOver=false;
+
+function setMode(m){
+    mode=m;
+    resetTTT();
+    document.getElementById("modeText").innerText=
+        "Mode: " + (m==="ai" ? "AI" : "2 Player");
+}
 
 function draw(){
 
@@ -245,22 +258,32 @@ function draw(){
 
 function move(i){
 
-    if(board[i]!="") return;
+    if(board[i]!=="" || gameOver) return;
 
     board[i]=player;
 
     if(checkWin(player)){
-        document.getElementById("tttResult").innerText="You win!";
-        draw();
+        endGame(player + " wins!");
         return;
     }
 
-    aiMove();
+    if(isDraw()){
+        endGame("Draw!");
+        return;
+    }
+
+    player=(player==="X")?"O":"X";
 
     draw();
+
+    if(mode==="ai" && player==="O"){
+        setTimeout(aiMove,300);
+    }
 }
 
 function aiMove(){
+
+    if(gameOver) return;
 
     let empty=board.map((v,i)=>v===""?i:null).filter(v=>v!=null);
 
@@ -269,8 +292,18 @@ function aiMove(){
     board[pick]="O";
 
     if(checkWin("O")){
-        document.getElementById("tttResult").innerText="AI wins!";
+        endGame("AI wins!");
+        return;
     }
+
+    if(isDraw()){
+        endGame("Draw!");
+        return;
+    }
+
+    player="X";
+
+    draw();
 }
 
 function checkWin(p){
@@ -288,14 +321,25 @@ function checkWin(p){
     );
 }
 
+function isDraw(){
+    return board.every(x=>x!=="");
+}
+
+function endGame(msg){
+    gameOver=true;
+    document.getElementById("tttResult").innerText=msg;
+}
+
 function resetTTT(){
     board=["","","","","","","","",""];
     player="X";
+    gameOver=false;
     document.getElementById("tttResult").innerText="";
     draw();
 }
 
 draw();
+setMode("ai");
 
 /* RPS BEST OF 5 */
 let p=0,c=0;
