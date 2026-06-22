@@ -1,162 +1,112 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Fraser's Arcade</title>
-     <button class="home-btn" onclick="window.location.href='index.html'">
-🏠 Home
-</button>
+<title>Mini Arcade</title>
 
 <style>
 body{
-    font-family:Arial,sans-serif;
+    margin:0;
+    font-family:Arial;
     background:linear-gradient(135deg,#0f172a,#111827);
     color:white;
     text-align:center;
-    margin:0;
-    min-height:100vh;
 }
 
 h1{
     color:#60a5fa;
-    text-shadow:0 0 15px #60a5fa;
+    margin-top:20px;
+}
+
+#menu{
+    padding:20px;
 }
 
 .tile{
     display:inline-block;
     width:220px;
-    padding:25px;
-    margin:15px;
+    padding:20px;
+    margin:10px;
     background:#1f2937;
-    border:2px solid #374151;
     border-radius:15px;
-    cursor:pointer;
-    transition:.25s;
-    font-size:20px;
-    font-weight:bold;
-}
-
-.tile:hover{
-    transform:translateY(-8px);
-    border-color:#60a5fa;
-    box-shadow:0 0 25px rgba(96,165,250,.7);
-}
-
-button{
-    padding:12px 18px;
-    border:none;
-    border-radius:10px;
-    background:#2563eb;
-    color:white;
-    font-size:16px;
     cursor:pointer;
     transition:.2s;
 }
 
-button:hover{
+.tile:hover{
     transform:scale(1.05);
-    background:#3b82f6;
+    background:#2563eb;
 }
 
 .game{
     display:none;
-    max-width:800px;
-    margin:auto;
+    max-width:700px;
+    margin:20px auto;
+    background:#111827;
     padding:20px;
+    border-radius:15px;
+}
+
+button{
+    padding:10px 15px;
+    margin:5px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
 }
 
 #reactionBox{
-    width:250px;
-    height:250px;
-    border-radius:20px;
+    width:200px;
+    height:200px;
     margin:20px auto;
     display:none;
+    border-radius:15px;
     cursor:pointer;
-    box-shadow:0 0 20px rgba(255,255,255,.2);
 }
 
 #board{
-    width:306px;
-    height:306px;
-    margin:20px auto;
     display:grid;
     grid-template-columns:repeat(3,100px);
-    grid-template-rows:repeat(3,100px);
+    width:306px;
+    margin:20px auto;
     gap:3px;
-    background:#111;
-    padding:5px;
-    border-radius:10px;
 }
 
 .cell{
     width:100px;
     height:100px;
     background:#1f2937;
-    border-radius:10px;
     display:flex;
     justify-content:center;
     align-items:center;
     font-size:50px;
-    font-weight:bold;
     cursor:pointer;
+    border-radius:10px;
 }
-#rps{
-    max-width:500px;
-    margin:20px auto;
-}
-     button{
-    display:inline-block;
-    width:auto;
-}
-     .game{
-    max-width:700px;
-    margin:20px auto;
-}
-.cell:hover{
-    background:#374151;
-    transform:scale(1.05);
-}
-     .game{
-    background:#1f2937;
-    border-radius:20px;
-    padding:30px;
-    margin:30px auto;
-    box-shadow:0 0 25px rgba(0,0,0,.4);
-}
+
 </style>
 </head>
 
 <body>
 
-<h1>🎮 Fraser's Arcade</h1>
+<h1>🎮 Mini Arcade</h1>
 
+<!-- MENU -->
 <div id="menu">
 
-<div class="tile" onclick="showGame('reaction')">
-⚡ Reaction Time
-</div>
-
-<div class="tile" onclick="showGame('ttt')">
-❌⭕ Tic-Tac-Toe
-</div>
-
-<div class="tile" onclick="showGame('rps')">
-🪨 Rock Paper Scissors
-</div>
-
-<div class="tile" onclick="showGame('higher')">
-🎲 Higher or Lower
-</div>
+<div class="tile" onclick="showGame('reaction')">⚡ Reaction Time</div>
+<div class="tile" onclick="showGame('ttt')">❌⭕ Tic-Tac-Toe</div>
+<div class="tile" onclick="showGame('rps')">🪨 Rock Paper Scissors</div>
+<div class="tile" onclick="showGame('higher')">🎲 Higher or Lower</div>
 
 </div>
 
 <!-- REACTION -->
-
 <div id="reaction" class="game">
 
 <h2>⚡ Reaction Time</h2>
 
 <button onclick="startReaction()">Start</button>
-<button onclick="backToMenu()">Back</button>
+<button onclick="back()">Back</button>
 
 <div id="reactionBox"></div>
 
@@ -165,13 +115,12 @@ button:hover{
 </div>
 
 <!-- TIC TAC TOE -->
-
 <div id="ttt" class="game">
 
-<h2>❌⭕ Tic-Tac-Toe</h2>
+<h2>❌⭕ Tic-Tac-Toe (AI)</h2>
 
 <button onclick="resetTTT()">Reset</button>
-<button onclick="backToMenu()">Back</button>
+<button onclick="back()">Back</button>
 
 <div id="board"></div>
 
@@ -180,72 +129,57 @@ button:hover{
 </div>
 
 <!-- RPS -->
-
 <div id="rps" class="game">
 
-<h2>🪨 Rock Paper Scissors</h2>
+<h2>🪨 Rock Paper Scissors (Best of 5)</h2>
 
 <button onclick="playRPS('Rock')">Rock</button>
 <button onclick="playRPS('Paper')">Paper</button>
 <button onclick="playRPS('Scissors')">Scissors</button>
 
-<br><br>
-
-<button onclick="backToMenu()">Back</button>
+<br>
+<button onclick="back()">Back</button>
 
 <h3 id="rpsResult"></h3>
 
 </div>
 
 <!-- HIGHER LOWER -->
-
 <div id="higher" class="game">
 
 <h2>🎲 Higher or Lower</h2>
 
-<p id="currentNumber"></p>
+<p id="num"></p>
 
-<button onclick="guessHigher()">Higher</button>
-<button onclick="guessLower()">Lower</button>
+<button onclick="guess(true)">Higher</button>
+<button onclick="guess(false)">Lower</button>
 
-<br><br>
+<br>
+<button onclick="back()">Back</button>
 
-<button onclick="backToMenu()">Back</button>
-
-<h3 id="higherResult"></h3>
-<h3 id="higherScore"></h3>
+<h3 id="hlResult"></h3>
+<h3 id="hlScore"></h3>
 
 </div>
 
 <script>
 
 /* MENU */
-
 function showGame(id){
-
     document.getElementById("menu").style.display="none";
-
-    document.querySelectorAll(".game").forEach(g=>{
-        g.style.display="none";
-    });
-
+    document.querySelectorAll(".game").forEach(g=>g.style.display="none");
     document.getElementById(id).style.display="block";
 }
 
-function backToMenu(){
-
+function back(){
     document.getElementById("menu").style.display="block";
-
-    document.querySelectorAll(".game").forEach(g=>{
-        g.style.display="none";
-    });
+    document.querySelectorAll(".game").forEach(g=>g.style.display="none");
 }
 
-/* REACTION TIME */
-
-let reactionStart;
+/* REACTION */
+let start;
 let canClick=false;
-let bestTime=localStorage.getItem("bestTime");
+let best=localStorage.getItem("best")||99999;
 
 function startReaction(){
 
@@ -254,182 +188,172 @@ function startReaction(){
     box.style.display="none";
     canClick=false;
 
-    document.getElementById("reactionResult").innerText=
-    "Wait for green...";
-
-    let delay=Math.random()*4000+1000;
+    document.getElementById("reactionResult").innerText="Wait...";
 
     setTimeout(()=>{
 
-        box.style.background="green";
         box.style.display="block";
+        box.style.background="lime";
 
-        reactionStart=Date.now();
+        start=Date.now();
         canClick=true;
 
-    },delay);
+    },Math.random()*3000+1000);
 }
 
 document.getElementById("reactionBox").onclick=function(){
 
     if(!canClick){
-        document.getElementById("reactionResult").innerText=
-        "Too soon!";
+        document.getElementById("reactionResult").innerText="Too soon!";
         return;
     }
 
-    let time=Date.now()-reactionStart;
+    let t=Date.now()-start;
 
-    if(!bestTime || time<bestTime){
-        bestTime=time;
-        localStorage.setItem("bestTime",time);
+    if(t<best){
+        best=t;
+        localStorage.setItem("best",best);
     }
 
     document.getElementById("reactionResult").innerText=
-    "Time: "+time+"ms | Best: "+bestTime+"ms";
+    `Time: ${t}ms | Best: ${best}ms`;
 
     this.style.display="none";
+    canClick=false;
 };
 
-/* TIC TAC TOE */
-
+/* TIC TAC TOE AI */
 let board=["","","","","","","","",""];
 let player="X";
 
-function drawBoard(){
+function draw(){
 
     const b=document.getElementById("board");
-
     b.innerHTML="";
 
-    board.forEach((value,index)=>{
+    board.forEach((v,i)=>{
 
-        const cell=document.createElement("div");
+        let c=document.createElement("div");
+        c.className="cell";
+        c.innerText=v;
 
-        cell.className="cell";
-        cell.innerText=value;
+        c.onclick=()=>move(i);
 
-        cell.onclick=()=>move(index);
-
-        b.appendChild(cell);
+        b.appendChild(c);
     });
 }
 
-function move(index){
+function move(i){
 
-    if(board[index]!="") return;
+    if(board[i]!="") return;
 
-    board[index]=player;
+    board[i]=player;
 
-    drawBoard();
+    if(checkWin(player)){
+        document.getElementById("tttResult").innerText="You win!";
+        draw();
+        return;
+    }
 
-    const wins=[
+    aiMove();
+
+    draw();
+}
+
+function aiMove(){
+
+    let empty=board.map((v,i)=>v===""?i:null).filter(v=>v!=null);
+
+    let pick=empty[Math.floor(Math.random()*empty.length)];
+
+    board[pick]="O";
+
+    if(checkWin("O")){
+        document.getElementById("tttResult").innerText="AI wins!";
+    }
+}
+
+function checkWin(p){
+
+    const w=[
         [0,1,2],[3,4,5],[6,7,8],
         [0,3,6],[1,4,7],[2,5,8],
         [0,4,8],[2,4,6]
     ];
 
-    for(let w of wins){
-
-        if(
-            board[w[0]] &&
-            board[w[0]]===board[w[1]] &&
-            board[w[1]]===board[w[2]]
-        ){
-            document.getElementById("tttResult").innerText=
-            player+" wins!";
-            return;
-        }
-    }
-
-    player=player==="X"?"O":"X";
+    return w.some(c=>
+        board[c[0]]===p &&
+        board[c[1]]===p &&
+        board[c[2]]===p
+    );
 }
 
 function resetTTT(){
-
     board=["","","","","","","","",""];
     player="X";
-
     document.getElementById("tttResult").innerText="";
-
-    drawBoard();
+    draw();
 }
 
-drawBoard();
+draw();
 
-/* RPS */
+/* RPS BEST OF 5 */
+let p=0,c=0;
 
 function playRPS(choice){
 
-    const choices=["Rock","Paper","Scissors"];
+    const ops=["Rock","Paper","Scissors"];
+    let cpu=ops[Math.floor(Math.random()*3)];
 
-    let cpu=
-    choices[Math.floor(Math.random()*3)];
+    let res="";
 
-    let result="";
-
-    if(choice===cpu){
-        result="Draw";
-    }
+    if(choice===cpu) res="Draw";
     else if(
-        (choice==="Rock"&&cpu==="Scissors")||
-        (choice==="Paper"&&cpu==="Rock")||
-        (choice==="Scissors"&&cpu==="Paper")
+        (choice=="Rock"&&cpu=="Scissors")||
+        (choice=="Paper"&&cpu=="Rock")||
+        (choice=="Scissors"&&cpu=="Paper")
     ){
-        result="You win!";
+        res="You win";
+        p++;
+    }else{
+        res="CPU wins";
+        c++;
     }
-    else{
-        result="Computer wins!";
+
+    if(p==3||c==3){
+        document.getElementById("rpsResult").innerText=
+        (p>c?"You won match!":"CPU won match!");
+
+        p=0;c=0;
+        return;
     }
 
     document.getElementById("rpsResult").innerText=
-    "CPU chose "+cpu+" - "+result;
+    `CPU: ${cpu} | ${res} | You ${p} - CPU ${c}`;
 }
 
 /* HIGHER LOWER */
+let n=Math.floor(Math.random()*100);
+let s=0;
 
-let currentNum=Math.floor(Math.random()*100)+1;
-let score=0;
+document.getElementById("num").innerText="Number: "+n;
 
-document.getElementById("currentNumber").innerText=
-"Number: "+currentNum;
+function guess(h){
 
-document.getElementById("higherScore").innerText=
-"Score: 0";
+    let next=Math.floor(Math.random()*100);
 
-function guessHigher(){
-    playHigherLower(true);
-}
-
-function guessLower(){
-    playHigherLower(false);
-}
-
-function playHigherLower(higher){
-
-    let next=Math.floor(Math.random()*100)+1;
-
-    let correct=
-    higher ? next>currentNum : next<currentNum;
-
-    if(correct){
-        score++;
-        document.getElementById("higherResult").innerText=
-        "Correct!";
-    }
-    else{
-        score=0;
-        document.getElementById("higherResult").innerText=
-        "Wrong!";
+    if(h?next>n:next<n){
+        s++;
+        document.getElementById("hlResult").innerText="Correct";
+    }else{
+        s=0;
+        document.getElementById("hlResult").innerText="Wrong";
     }
 
-    currentNum=next;
+    n=next;
 
-    document.getElementById("currentNumber").innerText=
-    "Number: "+currentNum;
-
-    document.getElementById("higherScore").innerText=
-    "Score: "+score;
+    document.getElementById("num").innerText="Number: "+n;
+    document.getElementById("hlScore").innerText="Score: "+s;
 }
 
 </script>
