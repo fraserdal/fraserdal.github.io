@@ -56,34 +56,58 @@
     </p>
 
     <script>
-        let startTime;
+    let startTime;
 
-        function startGame() {
-            document.getElementById("result").innerText = "";
+    // Load best score (if it exists)
+    let bestTime = localStorage.getItem("bestTime");
 
-            const box = document.getElementById("box");
+    if (bestTime === null) {
+        bestTime = null;
+    } else {
+        bestTime = parseInt(bestTime);
+    }
 
-            box.style.display = "none";
-            box.style.backgroundColor = "red";
+    function updateBest(time) {
+        if (bestTime === null || time < bestTime) {
+            bestTime = time;
+            localStorage.setItem("bestTime", bestTime);
+        }
+    }
 
-            let delay = Math.random() * 4000 + 1000;
+    function startGame() {
+        document.getElementById("result").innerText = "";
 
-            setTimeout(() => {
-                box.style.display = "block";
-                box.style.backgroundColor = "green";
-                startTime = Date.now();
-            }, delay);
+        const box = document.getElementById("box");
+
+        box.style.display = "none";
+        box.style.backgroundColor = "red";
+
+        let delay = Math.random() * 4000 + 1000;
+
+        setTimeout(() => {
+            box.style.display = "block";
+            box.style.backgroundColor = "green";
+            startTime = Date.now();
+        }, delay);
+    }
+
+    document.getElementById("box").onclick = function () {
+        let reactionTime = Date.now() - startTime;
+
+        updateBest(reactionTime);
+
+        let text = "Your reaction time: " + reactionTime + " ms";
+
+        if (bestTime !== null) {
+            text += "\nBest time: " + bestTime + " ms";
         }
 
-        document.getElementById("box").onclick = function () {
-            let reactionTime = Date.now() - startTime;
+        document.getElementById("result").innerText = text;
 
-            document.getElementById("result").innerText =
-                "Your reaction time: " + reactionTime + " ms";
-
-            this.style.display = "none";
-        };
-    </script>
+        this.style.display = "none";
+    };
+</script>
+    
 
 </body>
 </html>
