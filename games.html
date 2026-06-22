@@ -55,17 +55,12 @@
         <a href="about.html">About</a>
     </p>
 
-    <script>
-    let startTime;
+   <script>
+    let startTime = 0;
+    let canClick = false;
 
-    // Load best score (if it exists)
     let bestTime = localStorage.getItem("bestTime");
-
-    if (bestTime === null) {
-        bestTime = null;
-    } else {
-        bestTime = parseInt(bestTime);
-    }
+    bestTime = bestTime ? parseInt(bestTime) : null;
 
     function updateBest(time) {
         if (bestTime === null || time < bestTime) {
@@ -75,9 +70,11 @@
     }
 
     function startGame() {
-        document.getElementById("result").innerText = "";
-
         const box = document.getElementById("box");
+        const result = document.getElementById("result");
+
+        result.innerText = "";
+        canClick = false;
 
         box.style.display = "none";
         box.style.backgroundColor = "red";
@@ -88,10 +85,21 @@
             box.style.display = "block";
             box.style.backgroundColor = "green";
             startTime = Date.now();
+            canClick = true;
         }, delay);
     }
 
     document.getElementById("box").onclick = function () {
+        const result = document.getElementById("result");
+
+        // ❌ FALSE START
+        if (!canClick) {
+            result.innerText = "Too soon! Wait for green.";
+            this.style.display = "none";
+            return;
+        }
+
+        // ✅ VALID CLICK
         let reactionTime = Date.now() - startTime;
 
         updateBest(reactionTime);
@@ -102,9 +110,10 @@
             text += "\nBest time: " + bestTime + " ms";
         }
 
-        document.getElementById("result").innerText = text;
+        result.innerText = text;
 
         this.style.display = "none";
+        canClick = false;
     };
 </script>
     
