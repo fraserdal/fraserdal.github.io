@@ -4,6 +4,98 @@
 <!DOCTYPE html>
 <html>
 <head>
+<title>Fraser's Website</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    background:linear-gradient(135deg,#0f172a,#111827);
+    color:white;
+}
+
+/* NAVBAR (shared style) */
+.navbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 25px;
+    background:#111827;
+    border-bottom:1px solid #334155;
+}
+
+.logo{
+    font-size:18px;
+    font-weight:bold;
+    color:#60a5fa;
+}
+
+.links a{
+    color:white;
+    text-decoration:none;
+    margin-left:15px;
+    padding:8px 12px;
+    border-radius:8px;
+    transition:.2s;
+}
+
+.links a:hover{
+    background:#2563eb;
+}
+
+.active{
+    background:#3b82f6;
+}
+
+/* HOME CONTENT */
+.container{
+    height:calc(100vh - 60px);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    text-align:center;
+}
+
+h1{
+    font-size:50px;
+    margin:0;
+    color:#60a5fa;
+    text-shadow:0 0 20px #3b82f6;
+}
+
+p{
+    color:#cbd5e1;
+    margin-top:10px;
+}
+
+.button{
+    margin-top:25px;
+    padding:15px 25px;
+    background:#2563eb;
+    color:white;
+    border-radius:10px;
+    text-decoration:none;
+    transition:.2s;
+    display:inline-block;
+}
+
+.button:hover{
+    background:#3b82f6;
+    transform:scale(1.05);
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+
+    <div class="logo">🎮 Fraser's <!DOCTYPE html>
+<html>
+<head>
 <title>Fraser's Arcade</title>
 
 <style>
@@ -93,7 +185,7 @@ p{
 <!-- NAVBAR -->
 <div class="navbar">
 
-    <div class="logo">🎮 Fraser's Arcade</div>
+    <div class="logo">🎮 Fraser's Website</div>
 
     <div class="links">
         <a href="index.html" class="active">Home</a>
@@ -105,10 +197,30 @@ p{
 <!-- MAIN -->
 <div class="container">
 
-    <h1>🎮 Fraser's Arcade</h1>
+    <h1>🎮 Fraser's Website</h1>
     <p>Simple web arcade with mini games</p>
 
-    <a href="games.html" class="button">▶ Enter Arcade</a>
+    <a href="games.html" class="button">▶ Enter Games</a>
+
+</div>
+
+</body>
+</html></div>
+
+    <div class="links">
+        <a href="index.html" class="active">Home</a>
+        <a href="games.html">Games</a>
+    </div>
+
+</div>
+
+<!-- MAIN -->
+<div class="container">
+
+    <h1>🎮 Fraser's Website</h1>
+    <p>Simple web Games with mini games</p>
+
+    <a href="games.html" class="button">▶ Enter Games</a>
 
 </div>
 
