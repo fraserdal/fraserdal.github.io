@@ -226,24 +226,42 @@
             }
         }
 
-        function stand() {
-            if (!gameActive) return;
+      function stand() {
+    if (!gameActive) return;
 
-            while (calculateScore(dealerCards) < 17) {
-                dealerCards.push(deck.pop());
-            }
+    document.getElementById("hitBtn").disabled = true;
+    document.getElementById("standBtn").disabled = true;
 
-            let playerScore = calculateScore(playerCards);
-            let dealerScore = calculateScore(dealerCards);
+    dealerPlay();
+}
 
-            if (dealerScore > 21 || playerScore > dealerScore) {
-                endGame("You win 🎉");
-            } else if (playerScore < dealerScore) {
-                endGame("Dealer wins 😬");
-            } else {
-                endGame("Draw 🤝");
-            }
-        }
+function dealerPlay() {
+    let dealerScore = calculateScore(dealerCards);
+
+    render();
+
+    if (dealerScore < 17) {
+        setTimeout(() => {
+            dealerCards.push(deck.pop());
+            dealerPlay();
+        }, 600);
+    } else {
+        finishGame();
+    }
+}
+
+function finishGame() {
+    let playerScore = calculateScore(playerCards);
+    let dealerScore = calculateScore(dealerCards);
+
+    if (dealerScore > 21 || playerScore > dealerScore) {
+        endGame("You win 🎉");
+    } else if (playerScore < dealerScore) {
+        endGame("Dealer wins 😬");
+    } else {
+        endGame("Draw 🤝");
+    }
+}
 
         function endGame(text) {
             gameActive = false;
