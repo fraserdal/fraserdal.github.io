@@ -8,65 +8,70 @@
 
 <style>
 body{
-    background:#111;
-    color:white;
     font-family:Arial,sans-serif;
+    background:linear-gradient(135deg,#0f172a,#111827);
+    color:white;
     text-align:center;
     margin:0;
+    min-height:100vh;
 }
 
-    .home-btn{
-    padding:10px 15px;
-    margin:10px;
-    background:#4da3ff;
-    color:white;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-}
-   
 h1{
-    color:#4da3ff;
-}
-
-#menu{
-    padding:30px;
+    color:#60a5fa;
+    text-shadow:0 0 15px #60a5fa;
 }
 
 .tile{
     display:inline-block;
-    background:#222;
-    width:200px;
-    padding:20px;
-    margin:10px;
+    width:220px;
+    padding:25px;
+    margin:15px;
+    background:#1f2937;
+    border:2px solid #374151;
+    border-radius:15px;
+    cursor:pointer;
+    transition:.25s;
+    font-size:20px;
+    font-weight:bold;
+}
+
+.tile:hover{
+    transform:translateY(-8px);
+    border-color:#60a5fa;
+    box-shadow:0 0 25px rgba(96,165,250,.7);
+}
+
+button{
+    padding:12px 18px;
+    border:none;
     border-radius:10px;
+    background:#2563eb;
+    color:white;
+    font-size:16px;
     cursor:pointer;
     transition:.2s;
 }
 
-.tile:hover{
-    background:#4da3ff;
-    color:black;
+button:hover{
+    transform:scale(1.05);
+    background:#3b82f6;
 }
 
 .game{
     display:none;
+    max-width:800px;
+    margin:auto;
     padding:20px;
-}
-
-button{
-    padding:10px 15px;
-    margin:5px;
-    cursor:pointer;
 }
 
 #reactionBox{
     width:250px;
     height:250px;
-    background:red;
+    border-radius:20px;
     margin:20px auto;
     display:none;
     cursor:pointer;
+    box-shadow:0 0 20px rgba(255,255,255,.2);
 }
 
 #board{
@@ -80,12 +85,27 @@ button{
 .cell{
     width:100px;
     height:100px;
-    background:#222;
+    background:#1f2937;
+    border-radius:10px;
     display:flex;
     justify-content:center;
     align-items:center;
     font-size:50px;
+    font-weight:bold;
     cursor:pointer;
+    transition:.2s;
+}
+
+.cell:hover{
+    background:#374151;
+    transform:scale(1.05);
+}
+     .game{
+    background:#1f2937;
+    border-radius:20px;
+    padding:30px;
+    margin:30px auto;
+    box-shadow:0 0 25px rgba(0,0,0,.4);
 }
 </style>
 </head>
