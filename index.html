@@ -1,39 +1,106 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Fraser's Website</title>
-    <style>
-        body {
-            font-family: Arial;
-            text-align: center;
-            margin-top: 80px;
-            background: #0f0f0f;
-            color: white;
-        }
+<title>Fraser's Arcade</title>
 
-        a {
-            color: #4da3ff;
-            margin: 10px;
-        }
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    background:radial-gradient(circle at top,#1f2937,#0f172a);
+    color:white;
+    text-align:center;
+}
 
-        button {
-            padding: 12px 20px;
-            font-size: 18px;
-            margin-top: 20px;
-        }
-    </style>
+h1{
+    font-size:50px;
+    margin-top:40px;
+    color:#60a5fa;
+    text-shadow:0 0 20px #3b82f6;
+}
+
+.subtitle{
+    color:#cbd5e1;
+    margin-bottom:30px;
+}
+
+.container{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:20px;
+    padding:30px;
+}
+
+.card{
+    width:220px;
+    padding:25px;
+    background:#111827;
+    border:1px solid #334155;
+    border-radius:15px;
+    cursor:pointer;
+    transition:.25s;
+    box-shadow:0 0 10px rgba(0,0,0,0.4);
+}
+
+.card:hover{
+    transform:translateY(-10px) scale(1.05);
+    border-color:#60a5fa;
+    box-shadow:0 0 25px rgba(96,165,250,0.5);
+}
+
+.icon{
+    font-size:40px;
+    margin-bottom:10px;
+}
+
+.footer{
+    margin-top:40px;
+    color:#64748b;
+    font-size:14px;
+}
+</style>
+
 </head>
+
 <body>
 
-    <h1>Home</h1>
-    <p>Welcome to my website</p>
+<h1>🎮 Fraser's Arcade</h1>
+<p class="subtitle">Pick a game and see how good you are</p>
 
-    <nav>
-        <a href="about.html">About</a>
-        <a href="games.html">Games</a>
-    </nav>
+<div class="container">
 
-    <button onclick="alert('hello lol')">Click me</button>
+<div class="card" onclick="go('games.html#reaction')">
+<div class="icon">⚡</div>
+<h3>Reaction Time</h3>
+</div>
+
+<div class="card" onclick="go('games.html#ttt')">
+<div class="icon">❌⭕</div>
+<h3>Tic Tac Toe</h3>
+</div>
+
+<div class="card" onclick="go('games.html#rps')">
+<div class="icon">🪨</div>
+<h3>Rock Paper Scissors</h3>
+</div>
+
+<div class="card" onclick="go('games.html#higher')">
+<div class="icon">🎲</div>
+<h3>Higher or Lower</h3>
+</div>
+
+</div>
+
+<div class="footer">
+Made for fun • Hosted on GitHub Pages
+</div>
+
+<script>
+function go(page){
+    window.location.href = page;
+}
+</script>
 
 </body>
 </html>
