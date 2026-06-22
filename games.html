@@ -45,135 +45,41 @@
     </style>
 </head>
 
-<body>
-
 <h1>Mini Arcade</h1>
 
-<!-- ================= AIM TRAINER ================= -->
-<div class="game">
-    <h2>🎯 Aim Trainer</h2>
-    <p>Click the red circle as fast as you can</p>
+<div id="menu">
 
+    <div class="tile" onclick="showGame('aim')">🎯 Aim Trainer</div>
+    <div class="tile" onclick="showGame('snake')">🐍 Snake</div>
+    <div class="tile" onclick="showGame('flappy')">🐦 Flappy Bird</div>
+    <div class="tile" onclick="showGame('memory')">🧠 Memory</div>
+
+</div>
+
+<!-- AIM -->
+<div id="aim" class="game">
+    <h2>Aim Trainer</h2>
     <button onclick="startAim()">Start</button>
     <h3 id="aimScore"></h3>
-
     <div id="target" onclick="hitTarget()"></div>
 </div>
 
-<!-- ================= SNAKE ================= -->
-<div class="game">
-    <h2>🐍 Snake</h2>
-    <canvas id="snake" width="300" height="300"></canvas>
-    <p>Use arrow keys</p>
+<!-- SNAKE -->
+<div id="snake" class="game">
+    <h2>Snake</h2>
+    <canvas id="snakeCanvas" width="300" height="300"></canvas>
 </div>
 
-<!-- ================= FLAPPY BIRD ================= -->
-<div class="game">
-    <h2>🐦 Flappy Bird</h2>
-    <canvas id="flappy" width="300" height="300"></canvas>
-    <p>Click to jump</p>
+<!-- FLAPPY -->
+<div id="flappy" class="game">
+    <h2>Flappy Bird</h2>
+    <canvas id="flappyCanvas" width="300" height="300"></canvas>
 </div>
 
-<!-- ================= MEMORY ================= -->
-<div class="game">
-    <h2>🧠 Memory Game</h2>
+<!-- MEMORY -->
+<div id="memory" class="game">
+    <h2>Memory Game</h2>
     <button onclick="startMemory()">Start</button>
     <h3 id="memoryText"></h3>
 </div>
-
-<script>
-/* ================= AIM TRAINER ================= */
-let startTime;
-
-function startAim() {
-    const target = document.getElementById("target");
-
-    target.style.display = "block";
-    target.style.left = Math.random() * 250 + "px";
-    target.style.top = Math.random() * 400 + "px";
-
-    startTime = Date.now();
-}
-
-function hitTarget() {
-    let time = Date.now() - startTime;
-
-    document.getElementById("aimScore").innerText =
-        "Time: " + time + " ms";
-
-    startAim();
-}
-
-/* ================= SNAKE (basic version) ================= */
-const snakeCanvas = document.getElementById("snake");
-const sctx = snakeCanvas.getContext("2d");
-
-let snake = [{x: 150, y: 150}];
-let dir = {x: 10, y: 0};
-
-document.addEventListener("keydown", e => {
-    if (e.key === "ArrowUp") dir = {x: 0, y: -10};
-    if (e.key === "ArrowDown") dir = {x: 0, y: 10};
-    if (e.key === "ArrowLeft") dir = {x: -10, y: 0};
-    if (e.key === "ArrowRight") dir = {x: 10, y: 0};
-});
-
-function snakeGame() {
-    let head = {
-        x: snake[0].x + dir.x,
-        y: snake[0].y + dir.y
-    };
-
-    snake.unshift(head);
-    snake.pop();
-
-    sctx.clearRect(0,0,300,300);
-
-    snake.forEach(s => {
-        sctx.fillStyle = "lime";
-        sctx.fillRect(s.x, s.y, 10, 10);
-    });
-}
-
-setInterval(snakeGame, 100);
-
-/* ================= FLAPPY BIRD (basic) ================= */
-const fcanvas = document.getElementById("flappy");
-const fctx = fcanvas.getContext("2d");
-
-let birdY = 150;
-let velocity = 0;
-let gravity = 0.5;
-
-document.addEventListener("click", () => {
-    velocity = -6;
-});
-
-function flappyGame() {
-    velocity += gravity;
-    birdY += velocity;
-
-    fctx.clearRect(0,0,300,300);
-
-    fctx.fillStyle = "yellow";
-    fctx.fillRect(50, birdY, 20, 20);
-}
-
-setInterval(flappyGame, 30);
-
-/* ================= MEMORY GAME ================= */
-function startMemory() {
-    let num = Math.floor(Math.random() * 5) + 1;
-
-    document.getElementById("memoryText").innerText =
-        "Remember this number: " + num;
-
-    setTimeout(() => {
-        document.getElementById("memoryText").innerText =
-            "What was the number?";
-    }, 2000);
-}
-</script>
-
-</body>
 </html>
