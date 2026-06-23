@@ -2,26 +2,8 @@
 <html>
 <head>
 <title>Mini Tools</title>
-<button class="homeBtn" onclick="goHome()">🏠 Back to Home</button>
-    
-<style>
-    .homeBtn{
-    margin:10px auto 20px;
-    display:block;
-    padding:12px 18px;
-    background:#2563eb;
-    color:white;
-    border:none;
-    border-radius:10px;
-    font-size:16px;
-    cursor:pointer;
-    transition:.2s;
-}
 
-.homeBtn:hover{
-    background:#3b82f6;
-    transform:scale(1.05);
-}
+<style>
 body{
     margin:0;
     font-family:Arial;
@@ -30,8 +12,6 @@ body{
 }
 
 /* NAVBAR */
-
-    
 .navbar{
     display:flex;
     justify-content:space-between;
@@ -59,9 +39,31 @@ body{
     background:#2563eb;
 }
 
+.active{
+    background:#3b82f6;
+}
+
+/* BUTTONS */
+.homeBtn{
+    margin:20px auto;
+    display:block;
+    padding:12px 18px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.homeBtn:hover{
+    background:#3b82f6;
+}
+
+/* CONTENT */
 .container{
     text-align:center;
-    padding:40px;
+    padding:20px;
 }
 
 .card{
@@ -73,80 +75,84 @@ body{
     width:220px;
 }
 
-button{
+.card button{
     padding:10px 15px;
-    margin-top:10px;
     border:none;
     border-radius:10px;
     cursor:pointer;
 }
-</style>
 
+h1{
+    color:#60a5fa;
+}
+</style>
 </head>
 
 <body>
 
 <!-- NAVBAR -->
 <div class="navbar">
-
-    <div class="logo">🛠 Mini Tools</div>
+    <div class="logo">🛠 Fraser's Tools</div>
 
     <div class="links">
         <a href="index.html">Home</a>
         <a href="games.html">Games</a>
         <a href="tools.html" class="active">Tools</a>
     </div>
-
 </div>
+
+<button class="homeBtn" onclick="goHome()">🏠 Back to Home</button>
 
 <div class="container">
 
 <h1>🛠 Mini Tools</h1>
 
 <div class="card">
-<h3>🎲 Random Number</h3>
-<p id="num">-</p>
-<button onclick="randomNum()">Generate</button>
+    <h3>🎲 Random Number</h3>
+    <p id="num">-</p>
+    <button onclick="randomNum()">Generate</button>
 </div>
 
 <div class="card">
-<h3>🪙 Coin Flip</h3>
-<p id="coin">-</p>
-<button onclick="flip()">Flip</button>
+    <h3>🪙 Coin Flip</h3>
+    <p id="coin">-</p>
+    <button onclick="flipCoin()">Flip</button>
 </div>
 
 <div class="card">
-<h3>⏱ Timer (5s)</h3>
-<p id="timer">Ready</p>
-<button onclick="startTimer()">Start</button>
+    <h3>⏱ 5 Second Timer</h3>
+    <p id="timer">Ready</p>
+    <button onclick="startTimer()">Start</button>
 </div>
 
 </div>
 
 <script>
 
-    <script>
 function goHome(){
     window.location.href = "index.html";
 }
-</script>
 
 function randomNum(){
     document.getElementById("num").innerText =
-    Math.floor(Math.random()*100)+1;
+    Math.floor(Math.random() * 100) + 1;
 }
 
-function flip(){
-    let r = Math.random() < 0.5 ? "Heads" : "Tails";
-    document.getElementById("coin").innerText = r;
+function flipCoin(){
+    document.getElementById("coin").innerText =
+    Math.random() < 0.5 ? "Heads" : "Tails";
 }
 
 function startTimer(){
-    document.getElementById("timer").innerText = "Running...";
 
-    setTimeout(()=>{
-        document.getElementById("timer").innerText = "Done!";
-    },5000);
+    const timer = document.getElementById("timer");
+
+    timer.innerText = "Running...";
+
+    setTimeout(function(){
+        timer.innerText = "Done!";
+    }, 5000);
+
 }
 
 </script>
