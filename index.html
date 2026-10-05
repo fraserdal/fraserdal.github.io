@@ -330,65 +330,25 @@ function wallIntersect(angle){
   return castRay(angle,60);
 }
 
-// Render bright indoor facility environment with detailed floor & ceiling textures
+// Solid Basic Environment Rendering (No complex textures or lines)
 function drawEnvironment(){
-  // Bright industrial ceiling
-  const ceilGrad=ctx.createLinearGradient(0,0,0,H*.5);
-  ceilGrad.addColorStop(0,'#1e293b');
-  ceilGrad.addColorStop(0.7,'#334155');
-  ceilGrad.addColorStop(1,'#475569');
-  ctx.fillStyle=ceilGrad;ctx.fillRect(0,0,W,H/2);
+  // Solid ceiling
+  ctx.fillStyle='#2b374a';
+  ctx.fillRect(0,0,W,H/2);
 
-  // Ceiling tile grid textures
-  for(let y=12; y<H/2; y+=22){
-    const alpha = (1 - y/(H/2)) * 0.35;
-    ctx.strokeStyle = 'rgba(203, 213, 225, '+alpha+')';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-  }
+  // Solid floor
+  ctx.fillStyle='#1e293b';
+  ctx.fillRect(0,H/2,W,H/2);
 
-  // Bright polished metallic floor
-  const floorGrad=ctx.createLinearGradient(0,H*.5,0,H);
-  floorGrad.addColorStop(0,'#334155');
-  floorGrad.addColorStop(0.4,'#1e293b');
-  floorGrad.addColorStop(1,'#0f172a');
-  ctx.fillStyle=floorGrad;ctx.fillRect(0,H/2,W,H/2);
-
-  // High-contrast floor tile grid (Horizontal perspective lines)
-  for(let y=H/2; y<H; y+=12){
-    const progress = (y - H/2) / (H/2);
-    const alpha = 0.25 + progress * 0.45;
-    ctx.strokeStyle = 'rgba(56, 189, 248, ' + alpha + ')';
-    ctx.lineWidth = 1 + progress * 1.8;
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-  }
-
-  // Perspective vertical floor tile grid
-  const floorCols = 36;
-  for(let i = -floorCols; i <= floorCols; i++){
-    const xStart = W/2 + (i * 18);
-    const xEnd = W/2 + (i * W * 0.14);
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.22)';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(xStart, H/2); ctx.lineTo(xEnd, H); ctx.stroke();
-  }
-
-  // Overhead Fluorescent Fixtures & Downlight Beams
+  // Clean, sleek, flush recessed light fixtures on ceiling
   for(let x=W*0.08; x<W; x+=W*0.22){
-    ctx.fillStyle='rgba(255, 255, 255, 0.7)';
-    ctx.fillRect(x, 8, W*0.06, 10);
-    
-    // Light cast overlay
-    const beamGrad = ctx.createLinearGradient(0, 0, 0, H*0.5);
-    beamGrad.addColorStop(0, 'rgba(255, 255, 255, 0.22)');
-    beamGrad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-    ctx.fillStyle = beamGrad;
-    ctx.beginPath();
-    ctx.moveTo(x - 15, 18);
-    ctx.lineTo(x + W*0.06 + 15, 18);
-    ctx.lineTo(W/2 + (x + W*0.03 - W/2)*1.25, H/2);
-    ctx.lineTo(W/2 + (x + W*0.03 - W/2)*0.75, H/2);
-    ctx.fill();
+    ctx.fillStyle='#0f172a';
+    ctx.fillRect(x-2, 8, W*0.08+4, 10);
+    ctx.fillStyle='#38bdf8';
+    ctx.shadowColor='#38bdf8';
+    ctx.shadowBlur=10;
+    ctx.fillRect(x, 10, W*0.08, 6);
+    ctx.shadowBlur=0;
   }
 }
 
@@ -408,16 +368,15 @@ function drawScene(){
     const height=Math.min(H*2, H/(corrected+.001)*1.55);
     const top=H/2-height/2;
 
-    // High ambient illumination (brighter scene with minimal falloff)
-    const shade=clamp(1-corrected/60, 0.45, 1.0);
+    const shade=clamp(1-corrected/60, 0.5, 1.0);
 
-    // Bright Wall Panel Base Colors
-    let baseR=110, baseG=130, baseB=160; // Architectural Slate
-    if(hit.type==='glass'){ baseR=50; baseG=200; baseB=240; }
-    else if(hit.type==='tech'){ baseR=120; baseG=150; baseB=190; }
-    else if(hit.type==='outer'){ baseR=90; baseG=110; baseB=140; }
+    // Solid basic wall colors (No patterns, stripes, or textures)
+    let baseR=90, baseG=110, baseB=140; // Default solid wall
+    if(hit.type==='glass'){ baseR=38; baseG=189; baseB=248; } // Cyan accent
+    else if(hit.type==='tech'){ baseR=100; baseG=130; baseB=170; }
+    else if(hit.type==='outer'){ baseR=75; baseG=95; baseB=120; }
 
-    if(hit.side===1){ baseR*=0.85; baseG*=0.85; baseB*=0.85; }
+    if(hit.side===1){ baseR*=0.82; baseG*=0.82; baseB*=0.82; }
 
     const r=Math.floor(baseR*shade);
     const g=Math.floor(baseG*shade);
@@ -425,45 +384,6 @@ function drawScene(){
 
     ctx.fillStyle='rgb('+r+','+g+','+b+')';
     ctx.fillRect(i*colW,top,colW+1,height);
-
-    // Procedural Wall Textures
-    const u = ((hit.x + hit.y) * 6) % 1;
-
-    // 1. Vertical Panel Seams & Bevels
-    if(u < 0.05 || u > 0.95){
-      ctx.fillStyle = 'rgba(15, 23, 42, ' + (0.55 * shade) + ')';
-      ctx.fillRect(i*colW, top, colW+1, height);
-    } else if(u > 0.05 && u < 0.08){
-      ctx.fillStyle = 'rgba(255, 255, 255, ' + (0.35 * shade) + ')';
-      ctx.fillRect(i*colW, top, colW+1, height);
-    }
-
-    // 2. Horizontal Wall Seams (Dado Rail Joint)
-    const midY = top + height * 0.48;
-    const midH = Math.max(2, height * 0.025);
-    ctx.fillStyle = 'rgba(15, 23, 42, ' + (0.6 * shade) + ')';
-    ctx.fillRect(i*colW, midY, colW+1, midH);
-
-    // 3. Wall Baseboards & Crown Molding
-    const trimH = Math.max(3, height * 0.07);
-    ctx.fillStyle = 'rgba(30, 41, 59, ' + (0.9 * shade) + ')';
-    ctx.fillRect(i*colW, top + height - trimH, colW+1, trimH);
-    ctx.fillStyle = 'rgba(148, 163, 184, ' + (0.5 * shade) + ')';
-    ctx.fillRect(i*colW, top + height - trimH, colW+1, 2);
-
-    ctx.fillStyle = 'rgba(30, 41, 59, ' + (0.85 * shade) + ')';
-    ctx.fillRect(i*colW, top, colW+1, trimH * 0.7);
-
-    // 4. Accent Lights & Glass Reflections
-    if(hit.type === 'tech'){
-      ctx.fillStyle = 'rgba(56, 189, 248, ' + (0.9 * shade) + ')';
-      ctx.fillRect(i*colW, top + height * 0.25, colW+1, Math.max(2, height * 0.02));
-    } else if(hit.type === 'glass'){
-      if((u > 0.3 && u < 0.45) || (u > 0.7 && u < 0.85)){
-        ctx.fillStyle = 'rgba(255, 255, 255, ' + (0.28 * shade) + ')';
-        ctx.fillRect(i*colW, top + height * 0.1, colW+1, height * 0.8);
-      }
-    }
   }
 
   // Draw Enemies (Sleek Combat Droids)
@@ -533,22 +453,77 @@ function drawScene(){
     ctx.fillStyle='#38ef7d';ctx.fillRect(x-bw/2,y-size*.64,bw*(e.hp/100),bh);
   }
 
-  // Weapon Model
+  // Detailed Weapon Model
   const bob=Math.sin(player.bob)*5;
-  const wx=W*.68,wy=H*.79+bob;
+  const wx=W*.68,wy=H*.78+bob;
   ctx.save();
   ctx.translate(wx,wy);
-  ctx.rotate(-.06);
-  ctx.fillStyle='#1e293b';ctx.fillRect(-40,0,115,44);
-  ctx.fillStyle='#334155';ctx.fillRect(-25,-10,58,25);
-  ctx.fillStyle='#38bdf8';ctx.fillRect(0,-4,25,3);
-  ctx.fillStyle='#0f172a';ctx.fillRect(28,-5,70,12);
-  ctx.fillStyle='#1e293b';ctx.fillRect(-10,31,25,62);
+  ctx.rotate(-.05);
+
+  // Pistol Grip & Hand Guards
+  ctx.fillStyle='#0f172a';
+  ctx.fillRect(-15,25,26,65);
+  ctx.fillStyle='#1e293b';
+  for(let g=30;g<80;g+=8){ ctx.fillRect(-13,g,22,4); } // Grip texturing
+
+  // Detachable Ammo Magazine
+  ctx.fillStyle='#1e293b';
+  ctx.fillRect(15,30,22,55);
+  ctx.fillStyle='#0284c7'; // Ammo level window
+  ctx.fillRect(22,45,8,25);
+
+  // Lower Receiver Body
+  ctx.fillStyle='#1e293b';
+  ctx.fillRect(-35,5,90,30);
+
+  // Upper Receiver / Main Chassis
+  ctx.fillStyle='#334155';
+  ctx.fillRect(-45,-12,110,22);
+
+  // Ejection Port & Energy Core
+  ctx.fillStyle='#0f172a';
+  ctx.fillRect(0,-5,28,12);
+  ctx.fillStyle='#38bdf8';
+  ctx.fillRect(4,-2,20,6);
+
+  // Picatinny Optics Rail
+  ctx.fillStyle='#0f172a';
+  ctx.fillRect(-40,-17,105,5);
+  ctx.fillStyle='#475569';
+  for(let rx=-38;rx<60;rx+=6){ ctx.fillRect(rx,-17,3,5); } // Rail teeth
+
+  // Red Dot Holographic Sight
+  ctx.fillStyle='#0f172a';
+  ctx.fillRect(5,-30,30,13);
+  ctx.fillStyle='#0284c7';
+  ctx.fillRect(10,-28,20,9); // Lens glass
+  ctx.fillStyle='#38ef7d';
+  ctx.beginPath(); ctx.arc(20,-23,2,0,Math.PI*2); ctx.fill(); // Reticle dot
+
+  // Heat-Vented Barrel Shroud
+  ctx.fillStyle='#1e293b';
+  ctx.fillRect(65,-10,50,16);
+  ctx.fillStyle='#0f172a';
+  for(let vx=70;vx<105;vx+=9){ ctx.fillRect(vx,-6,5,8); } // Heat vents
+
+  // Extended Barrel & Tactical Muzzle Brake
+  ctx.fillStyle='#0f172a';
+  ctx.fillRect(115,-7,18,10);
+  ctx.fillStyle='#475569';
+  ctx.fillRect(122,-10,3,4); // Top ports
+  ctx.fillRect(128,-10,3,4);
+
+  // Underbarrel Tactical Laser Module
+  ctx.fillStyle='#0f172a';
+  ctx.fillRect(50,10,30,10);
+  ctx.fillStyle='#ef4444'; // Red laser diode
+  ctx.fillRect(80,13,3,4);
+
   ctx.restore();
 
   if(shootFlash>0){
     ctx.fillStyle='rgba(56,189,248,.85)';
-    ctx.beginPath();ctx.arc(wx+98,wy,12+Math.random()*6,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(wx+132,wy-7,14+Math.random()*6,0,Math.PI*2);ctx.fill();
     shootFlash-=.016;
   }
 }
