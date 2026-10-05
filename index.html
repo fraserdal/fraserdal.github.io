@@ -6,27 +6,27 @@
 <title>Neon Strike — 3D Shooter</title>
 <style>
   *{box-sizing:border-box}
-  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#05070c;color:#fff;font-family:Arial,Helvetica,sans-serif}
-  canvas{display:block;width:100vw;height:100vh;background:#020305;cursor:crosshair}
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0f172a;color:#fff;font-family:Arial,Helvetica,sans-serif}
+  canvas{display:block;width:100vw;height:100vh;background:#0f172a;cursor:crosshair}
   #hud{position:fixed;inset:0;pointer-events:none}
   #stats{position:absolute;top:16px;left:16px;display:flex;gap:8px;flex-wrap:wrap}
-  .box{background:rgba(5,8,15,.8);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:8px 12px;font-size:14px}
-  #help{position:absolute;top:16px;right:16px;text-align:right;color:#c6d0e1;font-size:12px;line-height:1.5}
+  .box{background:rgba(15,23,42,.85);border:1px solid rgba(255,255,255,.25);border-radius:9px;padding:8px 12px;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+  #help{position:absolute;top:16px;right:16px;text-align:right;color:#e2e8f0;font-size:12px;line-height:1.5;text-shadow:0 1px 3px rgba(0,0,0,.8)}
   #cross{position:absolute;left:50%;top:50%;width:22px;height:22px;transform:translate(-50%,-50%)}
   #cross:before,#cross:after{content:"";position:absolute;background:#fff;box-shadow:0 0 6px #fff}
   #cross:before{width:2px;height:22px;left:10px}
   #cross:after{height:2px;width:22px;top:10px}
   #bottom{position:absolute;left:16px;bottom:16px;width:240px}
-  #healthLabel{font-size:12px;margin-bottom:6px}
-  #healthBar{height:14px;background:rgba(255,255,255,.14);border-radius:999px;overflow:hidden}
-  #healthFill{height:100%;width:100%;background:#4cff8b}
-  #ammo{position:absolute;right:16px;bottom:16px;background:rgba(5,8,15,.82);border:1px solid rgba(255,255,255,.15);padding:10px 14px;border-radius:10px;font-size:21px;font-weight:700}
-  #message{position:absolute;left:50%;top:12%;transform:translateX(-50%);font-size:20px;font-weight:800;text-shadow:0 2px 12px #000;opacity:0}
-  #overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at center,rgba(27,45,80,.38),rgba(0,0,0,.88));z-index:5}
-  .panel{width:min(560px,calc(100vw - 30px));padding:30px;text-align:center;border-radius:18px;background:rgba(7,11,20,.94);border:1px solid rgba(255,255,255,.15);box-shadow:0 25px 80px rgba(0,0,0,.55)}
-  h1{font-size:clamp(36px,8vw,62px);margin:0 0 8px;letter-spacing:2px}
-  p{color:#cbd4e5;line-height:1.55}
-  button{margin-top:12px;border:0;border-radius:11px;padding:13px 23px;font-size:16px;font-weight:800;background:#69ff9b;color:#07120b;cursor:pointer}
+  #healthLabel{font-size:12px;margin-bottom:6px;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+  #healthBar{height:14px;background:rgba(255,255,255,.2);border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.3)}
+  #healthFill{height:100%;width:100%;background:#38ef7d}
+  #ammo{position:absolute;right:16px;bottom:16px;background:rgba(15,23,42,.85);border:1px solid rgba(255,255,255,.25);padding:10px 14px;border-radius:10px;font-size:21px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+  #message{position:absolute;left:50%;top:12%;transform:translateX(-50%);font-size:22px;font-weight:800;text-shadow:0 2px 12px #000;opacity:0}
+  #overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at center,rgba(30,41,59,.6),rgba(15,23,42,.92));z-index:5}
+  .panel{width:min(560px,calc(100vw - 30px));padding:30px;text-align:center;border-radius:18px;background:rgba(15,23,42,.95);border:1px solid rgba(255,255,255,.25);box-shadow:0 25px 80px rgba(0,0,0,.6)}
+  h1{font-size:clamp(36px,8vw,62px);margin:0 0 8px;letter-spacing:2px;color:#38bdf8}
+  p{color:#cbd5e1;line-height:1.55}
+  button{margin-top:12px;border:0;border-radius:11px;padding:13px 23px;font-size:16px;font-weight:800;background:#38ef7d;color:#07120b;cursor:pointer;box-shadow:0 4px 14px rgba(56,239,125,.4)}
   #damage{position:fixed;inset:0;background:rgba(255,40,60,.38);opacity:0;pointer-events:none;z-index:4}
   @media(max-width:700px){#help{display:none}#bottom{width:180px}}
 </style>
@@ -105,7 +105,6 @@ const player={
   bob:0
 };
 
-// Indoor facility structural walls
 const walls=[
   {x:-12,y:-10,w:5,h:3,type:'panel'},
   {x:11,y:-8,w:6,h:4,type:'panel'},
@@ -188,7 +187,6 @@ function reload(){
 function castRay(angle,maxDist=60){
   const sin=Math.sin(angle),cos=Math.cos(angle);
   let t=0,step=.035;
-  let wallHitType='outer';
   while(t<maxDist){
     t+=step;
     const x=player.x+sin*t,y=player.y+cos*t;
@@ -332,39 +330,64 @@ function wallIntersect(angle){
   return castRay(angle,60);
 }
 
-// Render structural indoor architectural elements (ceiling & tile floor)
+// Render bright indoor facility environment with detailed floor & ceiling textures
 function drawEnvironment(){
-  // Acoustic tile ceiling
+  // Bright industrial ceiling
   const ceilGrad=ctx.createLinearGradient(0,0,0,H*.5);
-  ceilGrad.addColorStop(0,'#0a0e17');ceilGrad.addColorStop(1,'#141c2b');
+  ceilGrad.addColorStop(0,'#1e293b');
+  ceilGrad.addColorStop(0.7,'#334155');
+  ceilGrad.addColorStop(1,'#475569');
   ctx.fillStyle=ceilGrad;ctx.fillRect(0,0,W,H/2);
 
-  // Concrete / metallic tiled floor
+  // Ceiling tile grid textures
+  for(let y=12; y<H/2; y+=22){
+    const alpha = (1 - y/(H/2)) * 0.35;
+    ctx.strokeStyle = 'rgba(203, 213, 225, '+alpha+')';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  // Bright polished metallic floor
   const floorGrad=ctx.createLinearGradient(0,H*.5,0,H);
-  floorGrad.addColorStop(0,'#101520');floorGrad.addColorStop(1,'#05080e');
+  floorGrad.addColorStop(0,'#334155');
+  floorGrad.addColorStop(0.4,'#1e293b');
+  floorGrad.addColorStop(1,'#0f172a');
   ctx.fillStyle=floorGrad;ctx.fillRect(0,H/2,W,H/2);
 
-  // Floor grid perspective tiles
-  for(let y=H/2;y<H;y+=18){
-    const alpha=((y-H/2)/(H/2))*.22;
-    ctx.strokeStyle='rgba(0,180,255,'+alpha+')';
-    ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
-  }
-  for(let x=-W*0.5;x<1.5*W;x+=60){
-    const xx=W/2+(x-W/2)*1.8;
-    ctx.strokeStyle='rgba(0,180,255,0.06)';
-    ctx.beginPath();ctx.moveTo(W/2,H/2);ctx.lineTo(xx,H);ctx.stroke();
+  // High-contrast floor tile grid (Horizontal perspective lines)
+  for(let y=H/2; y<H; y+=12){
+    const progress = (y - H/2) / (H/2);
+    const alpha = 0.25 + progress * 0.45;
+    ctx.strokeStyle = 'rgba(56, 189, 248, ' + alpha + ')';
+    ctx.lineWidth = 1 + progress * 1.8;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
   }
 
-  // Ceiling overhead lights
-  for(let x=W*0.1;x<W;x+=W*0.28){
-    ctx.fillStyle='rgba(200,240,255,0.05)';
+  // Perspective vertical floor tile grid
+  const floorCols = 36;
+  for(let i = -floorCols; i <= floorCols; i++){
+    const xStart = W/2 + (i * 18);
+    const xEnd = W/2 + (i * W * 0.14);
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.22)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(xStart, H/2); ctx.lineTo(xEnd, H); ctx.stroke();
+  }
+
+  // Overhead Fluorescent Fixtures & Downlight Beams
+  for(let x=W*0.08; x<W; x+=W*0.22){
+    ctx.fillStyle='rgba(255, 255, 255, 0.7)';
+    ctx.fillRect(x, 8, W*0.06, 10);
+    
+    // Light cast overlay
+    const beamGrad = ctx.createLinearGradient(0, 0, 0, H*0.5);
+    beamGrad.addColorStop(0, 'rgba(255, 255, 255, 0.22)');
+    beamGrad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+    ctx.fillStyle = beamGrad;
     ctx.beginPath();
-    ctx.moveTo(x,0);
-    ctx.lineTo(x+30,0);
-    ctx.lineTo(W/2+(x-W/2)*0.15,H/2);
-    ctx.lineTo(W/2+(x-W/2)*0.15-5,H/2);
+    ctx.moveTo(x - 15, 18);
+    ctx.lineTo(x + W*0.06 + 15, 18);
+    ctx.lineTo(W/2 + (x + W*0.03 - W/2)*1.25, H/2);
+    ctx.lineTo(W/2 + (x + W*0.03 - W/2)*0.75, H/2);
     ctx.fill();
   }
 }
@@ -384,13 +407,17 @@ function drawScene(){
 
     const height=Math.min(H*2, H/(corrected+.001)*1.55);
     const top=H/2-height/2;
-    const shade=clamp(1-corrected/45,.12,1);
 
-    // Wall Texture Styling
-    let baseR=30, baseG=40, baseB=55;
-    if(hit.type==='glass'){ baseR=15; baseG=60; baseB=80; }
-    else if(hit.type==='tech'){ baseR=40; baseG=50; baseB=70; }
-    if(hit.side===1){ baseR*=0.75; baseG*=0.75; baseB*=0.75; }
+    // High ambient illumination (brighter scene with minimal falloff)
+    const shade=clamp(1-corrected/60, 0.45, 1.0);
+
+    // Bright Wall Panel Base Colors
+    let baseR=110, baseG=130, baseB=160; // Architectural Slate
+    if(hit.type==='glass'){ baseR=50; baseG=200; baseB=240; }
+    else if(hit.type==='tech'){ baseR=120; baseG=150; baseB=190; }
+    else if(hit.type==='outer'){ baseR=90; baseG=110; baseB=140; }
+
+    if(hit.side===1){ baseR*=0.85; baseG*=0.85; baseB*=0.85; }
 
     const r=Math.floor(baseR*shade);
     const g=Math.floor(baseG*shade);
@@ -399,22 +426,43 @@ function drawScene(){
     ctx.fillStyle='rgb('+r+','+g+','+b+')';
     ctx.fillRect(i*colW,top,colW+1,height);
 
-    // Architectural Wall Panels & Trims
-    const u=((hit.x+hit.y)*12)%1;
-    if(u<0.08||u>0.92){
-      ctx.fillStyle='rgba(0,0,0,'+(0.4*shade)+')';
-      ctx.fillRect(i*colW,top,colW+1,height);
+    // Procedural Wall Textures
+    const u = ((hit.x + hit.y) * 6) % 1;
+
+    // 1. Vertical Panel Seams & Bevels
+    if(u < 0.05 || u > 0.95){
+      ctx.fillStyle = 'rgba(15, 23, 42, ' + (0.55 * shade) + ')';
+      ctx.fillRect(i*colW, top, colW+1, height);
+    } else if(u > 0.05 && u < 0.08){
+      ctx.fillStyle = 'rgba(255, 255, 255, ' + (0.35 * shade) + ')';
+      ctx.fillRect(i*colW, top, colW+1, height);
     }
 
-    // Baseboards & Trim Details
-    const trimH=height*0.06;
-    ctx.fillStyle='rgba(15,22,32,'+(0.8*shade)+')';
-    ctx.fillRect(i*colW,top+height-trimH,colW+1,trimH);
+    // 2. Horizontal Wall Seams (Dado Rail Joint)
+    const midY = top + height * 0.48;
+    const midH = Math.max(2, height * 0.025);
+    ctx.fillStyle = 'rgba(15, 23, 42, ' + (0.6 * shade) + ')';
+    ctx.fillRect(i*colW, midY, colW+1, midH);
 
-    // Modern Wall Neon Strip Lights
-    if(hit.type==='tech' && u>0.45 && u<0.55){
-      ctx.fillStyle='rgba(0,230,255,'+(0.75*shade)+')';
-      ctx.fillRect(i*colW,top+height*0.2,colW+1,height*0.6);
+    // 3. Wall Baseboards & Crown Molding
+    const trimH = Math.max(3, height * 0.07);
+    ctx.fillStyle = 'rgba(30, 41, 59, ' + (0.9 * shade) + ')';
+    ctx.fillRect(i*colW, top + height - trimH, colW+1, trimH);
+    ctx.fillStyle = 'rgba(148, 163, 184, ' + (0.5 * shade) + ')';
+    ctx.fillRect(i*colW, top + height - trimH, colW+1, 2);
+
+    ctx.fillStyle = 'rgba(30, 41, 59, ' + (0.85 * shade) + ')';
+    ctx.fillRect(i*colW, top, colW+1, trimH * 0.7);
+
+    // 4. Accent Lights & Glass Reflections
+    if(hit.type === 'tech'){
+      ctx.fillStyle = 'rgba(56, 189, 248, ' + (0.9 * shade) + ')';
+      ctx.fillRect(i*colW, top + height * 0.25, colW+1, Math.max(2, height * 0.02));
+    } else if(hit.type === 'glass'){
+      if((u > 0.3 && u < 0.45) || (u > 0.7 && u < 0.85)){
+        ctx.fillStyle = 'rgba(255, 255, 255, ' + (0.28 * shade) + ')';
+        ctx.fillRect(i*colW, top + height * 0.1, colW+1, height * 0.8);
+      }
     }
   }
 
@@ -440,12 +488,12 @@ function drawScene(){
     ctx.translate(x,y);
     const hurt=e.hit>0;
 
-    // Sleek Modern Droid Rendering
+    // Sleek Modern Droid
     ctx.shadowColor=hurt?'#ffffff':(e.attack<0.2?'#ff3300':'#00e1ff');
     ctx.shadowBlur=hurt?22:12;
 
-    // Chassis / Torso (Metallic Angular Armor)
-    ctx.fillStyle=hurt?'#ffffff':'#121824';
+    // Torso Armor
+    ctx.fillStyle=hurt?'#ffffff':'#1e293b';
     ctx.beginPath();
     ctx.moveTo(-size*.12,-size*.38);
     ctx.lineTo(size*.12,-size*.38);
@@ -454,12 +502,12 @@ function drawScene(){
     ctx.closePath();
     ctx.fill();
 
-    // Armor Plates Detail
-    ctx.fillStyle=hurt?'#ffffff':'#232f45';
+    // Armor Plates
+    ctx.fillStyle=hurt?'#ffffff':'#334155';
     ctx.fillRect(-size*.07,-size*.34,size*.14,size*.18);
 
-    // Head (Angular Helmet)
-    ctx.fillStyle=hurt?'#ffffff':'#0a0e17';
+    // Head
+    ctx.fillStyle=hurt?'#ffffff':'#0f172a';
     ctx.beginPath();
     ctx.moveTo(-size*.07,-size*.42);
     ctx.lineTo(size*.07,-size*.42);
@@ -468,12 +516,12 @@ function drawScene(){
     ctx.closePath();
     ctx.fill();
 
-    // Visor (Glowing Cyan/Red Strip)
+    // Visor
     ctx.fillStyle=hurt?'#ffffff':(e.attack<0.2?'#ff2244':'#00f0ff');
     ctx.fillRect(-size*.05,-size*.49,size*.10,size*.025);
 
-    // Floating Robotic Shoulders & Arms
-    ctx.fillStyle=hurt?'#ffffff':'#1a2436';
+    // Shoulder Guards
+    ctx.fillStyle=hurt?'#ffffff':'#334155';
     ctx.fillRect(-size*.17,-size*.36,size*.04,size*.22);
     ctx.fillRect(size*.13,-size*.36,size*.04,size*.22);
 
@@ -482,7 +530,7 @@ function drawScene(){
     // Health Bar
     const bw=size*.38,bh=Math.max(3,size*.018);
     ctx.fillStyle='rgba(0,0,0,.75)';ctx.fillRect(x-bw/2,y-size*.64,bw,bh);
-    ctx.fillStyle='#00ff88';ctx.fillRect(x-bw/2,y-size*.64,bw*(e.hp/100),bh);
+    ctx.fillStyle='#38ef7d';ctx.fillRect(x-bw/2,y-size*.64,bw*(e.hp/100),bh);
   }
 
   // Weapon Model
@@ -491,15 +539,15 @@ function drawScene(){
   ctx.save();
   ctx.translate(wx,wy);
   ctx.rotate(-.06);
-  ctx.fillStyle='#0d131d';ctx.fillRect(-40,0,115,44);
-  ctx.fillStyle='#1e293b';ctx.fillRect(-25,-10,58,25);
-  ctx.fillStyle='#00e1ff';ctx.fillRect(0,-4,25,3); // Neon gun strip
-  ctx.fillStyle='#060a10';ctx.fillRect(28,-5,70,12);
-  ctx.fillStyle='#101722';ctx.fillRect(-10,31,25,62);
+  ctx.fillStyle='#1e293b';ctx.fillRect(-40,0,115,44);
+  ctx.fillStyle='#334155';ctx.fillRect(-25,-10,58,25);
+  ctx.fillStyle='#38bdf8';ctx.fillRect(0,-4,25,3);
+  ctx.fillStyle='#0f172a';ctx.fillRect(28,-5,70,12);
+  ctx.fillStyle='#1e293b';ctx.fillRect(-10,31,25,62);
   ctx.restore();
 
   if(shootFlash>0){
-    ctx.fillStyle='rgba(0,240,255,.85)';
+    ctx.fillStyle='rgba(56,189,248,.85)';
     ctx.beginPath();ctx.arc(wx+98,wy,12+Math.random()*6,0,Math.PI*2);ctx.fill();
     shootFlash-=.016;
   }
