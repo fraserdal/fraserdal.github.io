@@ -7,7 +7,7 @@
 <style>
   *{box-sizing:border-box}
   html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#05070c;color:#fff;font-family:Arial,Helvetica,sans-serif}
-  canvas{display:block;width:100vw;height:100vh;background:#0b0f18;cursor:crosshair}
+  canvas{display:block;width:100vw;height:100vh;background:#020305;cursor:crosshair}
   #hud{position:fixed;inset:0;pointer-events:none}
   #stats{position:absolute;top:16px;left:16px;display:flex;gap:8px;flex-wrap:wrap}
   .box{background:rgba(5,8,15,.8);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:8px 12px;font-size:14px}
@@ -57,7 +57,7 @@
     <h1>NEON STRIKE</h1>
     <p>A standalone browser FPS. No downloads or external libraries are needed.</p>
     <p><b>WASD</b> move · <b>Mouse</b> aim · <b>Left click</b> shoot · <b>Shift</b> sprint · <b>R</b> reload</p>
-    <button id="start">ENTER ARENA</button>
+    <button id="start">ENTER FACILITY</button>
   </div>
 </div>
 
@@ -105,15 +105,16 @@ const player={
   bob:0
 };
 
+// Indoor facility structural walls
 const walls=[
-  {x:-12,y:-10,w:5,h:3},
-  {x:11,y:-8,w:6,h:4},
-  {x:-10,y:10,w:4,h:5},
-  {x:10,y:11,w:5,h:3},
-  {x:0,y:-2,w:3,h:2},
-  {x:0,y:18,w:7,h:3},
-  {x:-19,y:2,w:3,h:7},
-  {x:19,y:-2,w:3,h:7}
+  {x:-12,y:-10,w:5,h:3,type:'panel'},
+  {x:11,y:-8,w:6,h:4,type:'panel'},
+  {x:-10,y:10,w:4,h:5,type:'glass'},
+  {x:10,y:11,w:5,h:3,type:'panel'},
+  {x:0,y:-2,w:3,h:2,type:'tech'},
+  {x:0,y:18,w:7,h:3,type:'panel'},
+  {x:-19,y:2,w:3,h:7,type:'tech'},
+  {x:19,y:-2,w:3,h:7,type:'panel'}
 ];
 
 const enemies=[];
@@ -187,12 +188,22 @@ function reload(){
 function castRay(angle,maxDist=60){
   const sin=Math.sin(angle),cos=Math.cos(angle);
   let t=0,step=.035;
+  let wallHitType='outer';
   while(t<maxDist){
     t+=step;
     const x=player.x+sin*t,y=player.y+cos*t;
-    if(blocked(x,y,.05))return{x,y,t};
+    if(x<-MAP||x>MAP||y<-MAP||y>MAP){
+      return{x,y,t,side:Math.abs(x)>Math.abs(y)?0:1,type:'outer'};
+    }
+    for(const w of walls){
+      if(x>w.x-w.w/2&&x<w.x+w.w/2&&y>w.y-w.h/2&&y<w.y+w.h/2){
+        const dx=Math.abs(x-w.x)/(w.w/2);
+        const dy=Math.abs(y-w.y)/(w.h/2);
+        return{x,y,t,side:dx>dy?0:1,type:w.type};
+      }
+    }
   }
-  return{x:player.x+sin*maxDist,y:player.y+cos*maxDist,t:maxDist};
+  return{x:player.x+sin*maxDist,y:player.y+cos*maxDist,t:maxDist,side:0,type:'outer'};
 }
 
 function shoot(){
@@ -321,25 +332,45 @@ function wallIntersect(angle){
   return castRay(angle,60);
 }
 
-function drawBackground(){
-  const sky=ctx.createLinearGradient(0,0,0,H*.55);
-  sky.addColorStop(0,'#04070e');sky.addColorStop(1,'#18253a');
-  ctx.fillStyle=sky;ctx.fillRect(0,0,W,H/2);
-  ctx.fillStyle='#0c111a';ctx.fillRect(0,H/2,W,H/2);
-  for(let y=H/2;y<H;y+=28){
-    const alpha=(y-H/2)/(H/2)*.13;
-    ctx.strokeStyle='rgba(80,120,160,'+alpha+')';
+// Render structural indoor architectural elements (ceiling & tile floor)
+function drawEnvironment(){
+  // Acoustic tile ceiling
+  const ceilGrad=ctx.createLinearGradient(0,0,0,H*.5);
+  ceilGrad.addColorStop(0,'#0a0e17');ceilGrad.addColorStop(1,'#141c2b');
+  ctx.fillStyle=ceilGrad;ctx.fillRect(0,0,W,H/2);
+
+  // Concrete / metallic tiled floor
+  const floorGrad=ctx.createLinearGradient(0,H*.5,0,H);
+  floorGrad.addColorStop(0,'#101520');floorGrad.addColorStop(1,'#05080e');
+  ctx.fillStyle=floorGrad;ctx.fillRect(0,H/2,W,H/2);
+
+  // Floor grid perspective tiles
+  for(let y=H/2;y<H;y+=18){
+    const alpha=((y-H/2)/(H/2))*.22;
+    ctx.strokeStyle='rgba(0,180,255,'+alpha+')';
+    ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
   }
-  for(let x=-W;x<2*W;x+=80){
-    const xx=W/2+(x-W/2)*.08;
-    ctx.strokeStyle='rgba(80,120,160,.08)';
+  for(let x=-W*0.5;x<1.5*W;x+=60){
+    const xx=W/2+(x-W/2)*1.8;
+    ctx.strokeStyle='rgba(0,180,255,0.06)';
     ctx.beginPath();ctx.moveTo(W/2,H/2);ctx.lineTo(xx,H);ctx.stroke();
+  }
+
+  // Ceiling overhead lights
+  for(let x=W*0.1;x<W;x+=W*0.28){
+    ctx.fillStyle='rgba(200,240,255,0.05)';
+    ctx.beginPath();
+    ctx.moveTo(x,0);
+    ctx.lineTo(x+30,0);
+    ctx.lineTo(W/2+(x-W/2)*0.15,H/2);
+    ctx.lineTo(W/2+(x-W/2)*0.15-5,H/2);
+    ctx.fill();
   }
 }
 
 function drawScene(){
-  drawBackground();
+  drawEnvironment();
 
   const rayCount=Math.min(Math.floor(W/2),700);
   const colW=W/rayCount;
@@ -353,17 +384,41 @@ function drawScene(){
 
     const height=Math.min(H*2, H/(corrected+.001)*1.55);
     const top=H/2-height/2;
-    const shade=clamp(1-corrected/55,.15,1);
-    const r=Math.floor(24*shade),g=Math.floor(43*shade),b=Math.floor(67*shade);
+    const shade=clamp(1-corrected/45,.12,1);
+
+    // Wall Texture Styling
+    let baseR=30, baseG=40, baseB=55;
+    if(hit.type==='glass'){ baseR=15; baseG=60; baseB=80; }
+    else if(hit.type==='tech'){ baseR=40; baseG=50; baseB=70; }
+    if(hit.side===1){ baseR*=0.75; baseG*=0.75; baseB*=0.75; }
+
+    const r=Math.floor(baseR*shade);
+    const g=Math.floor(baseG*shade);
+    const b=Math.floor(baseB*shade);
+
     ctx.fillStyle='rgb('+r+','+g+','+b+')';
     ctx.fillRect(i*colW,top,colW+1,height);
 
-    if((i%12)===0){
-      ctx.fillStyle='rgba(110,170,230,'+(0.055*shade)+')';
+    // Architectural Wall Panels & Trims
+    const u=((hit.x+hit.y)*12)%1;
+    if(u<0.08||u>0.92){
+      ctx.fillStyle='rgba(0,0,0,'+(0.4*shade)+')';
       ctx.fillRect(i*colW,top,colW+1,height);
+    }
+
+    // Baseboards & Trim Details
+    const trimH=height*0.06;
+    ctx.fillStyle='rgba(15,22,32,'+(0.8*shade)+')';
+    ctx.fillRect(i*colW,top+height-trimH,colW+1,trimH);
+
+    // Modern Wall Neon Strip Lights
+    if(hit.type==='tech' && u>0.45 && u<0.55){
+      ctx.fillStyle='rgba(0,230,255,'+(0.75*shade)+')';
+      ctx.fillRect(i*colW,top+height*0.2,colW+1,height*0.6);
     }
   }
 
+  // Draw Enemies (Sleek Combat Droids)
   const sprites=[];
   for(const e of enemies){
     const dx=e.x-player.x,dy=e.y-player.y,d=Math.hypot(dx,dy);
@@ -378,40 +433,74 @@ function drawScene(){
   sprites.sort((a,b)=>b.depth-a.depth);
 
   for(const s of sprites){
-    const size=H/(s.depth+.001)*1.32;
+    const size=H/(s.depth+.001)*1.35;
     const x=s.screenX,y=H/2+size*.13;
     const e=s.e;
     ctx.save();
     ctx.translate(x,y);
     const hurt=e.hit>0;
-    ctx.fillStyle=hurt?'#fff':'#ff405a';
-    ctx.shadowColor=hurt?'#fff':'#ff405a';ctx.shadowBlur=18;
-    ctx.fillRect(-size*.16,-size*.36,size*.32,size*.55);
-    ctx.fillStyle='#f2b49b';ctx.beginPath();ctx.arc(0,-size*.47,size*.13,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#77fff0';ctx.fillRect(-size*.07,-size*.49,size*.035,size*.035);ctx.fillRect(size*.035,-size*.49,size*.035,size*.035);
+
+    // Sleek Modern Droid Rendering
+    ctx.shadowColor=hurt?'#ffffff':(e.attack<0.2?'#ff3300':'#00e1ff');
+    ctx.shadowBlur=hurt?22:12;
+
+    // Chassis / Torso (Metallic Angular Armor)
+    ctx.fillStyle=hurt?'#ffffff':'#121824';
+    ctx.beginPath();
+    ctx.moveTo(-size*.12,-size*.38);
+    ctx.lineTo(size*.12,-size*.38);
+    ctx.lineTo(size*.08,-size*.12);
+    ctx.lineTo(-size*.08,-size*.12);
+    ctx.closePath();
+    ctx.fill();
+
+    // Armor Plates Detail
+    ctx.fillStyle=hurt?'#ffffff':'#232f45';
+    ctx.fillRect(-size*.07,-size*.34,size*.14,size*.18);
+
+    // Head (Angular Helmet)
+    ctx.fillStyle=hurt?'#ffffff':'#0a0e17';
+    ctx.beginPath();
+    ctx.moveTo(-size*.07,-size*.42);
+    ctx.lineTo(size*.07,-size*.42);
+    ctx.lineTo(size*.05,-size*.52);
+    ctx.lineTo(-size*.05,-size*.52);
+    ctx.closePath();
+    ctx.fill();
+
+    // Visor (Glowing Cyan/Red Strip)
+    ctx.fillStyle=hurt?'#ffffff':(e.attack<0.2?'#ff2244':'#00f0ff');
+    ctx.fillRect(-size*.05,-size*.49,size*.10,size*.025);
+
+    // Floating Robotic Shoulders & Arms
+    ctx.fillStyle=hurt?'#ffffff':'#1a2436';
+    ctx.fillRect(-size*.17,-size*.36,size*.04,size*.22);
+    ctx.fillRect(size*.13,-size*.36,size*.04,size*.22);
+
     ctx.restore();
 
-    // health bar
+    // Health Bar
     const bw=size*.38,bh=Math.max(3,size*.018);
-    ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(x-bw/2,y-size*.68,bw,bh);
-    ctx.fillStyle='#69ff9b';ctx.fillRect(x-bw/2,y-size*.68,bw*(e.hp/100),bh);
+    ctx.fillStyle='rgba(0,0,0,.75)';ctx.fillRect(x-bw/2,y-size*.64,bw,bh);
+    ctx.fillStyle='#00ff88';ctx.fillRect(x-bw/2,y-size*.64,bw*(e.hp/100),bh);
   }
 
-  // Weapon
+  // Weapon Model
   const bob=Math.sin(player.bob)*5;
   const wx=W*.68,wy=H*.79+bob;
   ctx.save();
   ctx.translate(wx,wy);
   ctx.rotate(-.06);
-  ctx.fillStyle='#121a27';ctx.fillRect(-40,0,115,44);
-  ctx.fillStyle='#29364b';ctx.fillRect(-25,-10,58,25);
-  ctx.fillStyle='#0a0f17';ctx.fillRect(28,-5,70,12);
+  ctx.fillStyle='#0d131d';ctx.fillRect(-40,0,115,44);
+  ctx.fillStyle='#1e293b';ctx.fillRect(-25,-10,58,25);
+  ctx.fillStyle='#00e1ff';ctx.fillRect(0,-4,25,3); // Neon gun strip
+  ctx.fillStyle='#060a10';ctx.fillRect(28,-5,70,12);
   ctx.fillStyle='#101722';ctx.fillRect(-10,31,25,62);
   ctx.restore();
 
   if(shootFlash>0){
-    ctx.fillStyle='rgba(255,230,130,.8)';
-    ctx.beginPath();ctx.arc(wx+98,wy,10+Math.random()*5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(0,240,255,.85)';
+    ctx.beginPath();ctx.arc(wx+98,wy,12+Math.random()*6,0,Math.PI*2);ctx.fill();
     shootFlash-=.016;
   }
 }
