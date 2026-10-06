@@ -1,542 +1,818 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Neon Strike — 3D Shooter</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Fairway Apex — 3D Golf</title>
 <style>
+  :root{
+    --glass: rgba(8,15,22,.76);
+    --glass2: rgba(15,27,38,.88);
+    --line: rgba(255,255,255,.12);
+    --text: #eef7ff;
+    --muted: #9fb1c0;
+    --accent: #72e6a2;
+    --gold: #ffd76b;
+    --danger:#ff7d7d;
+  }
   *{box-sizing:border-box}
-  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0f172a;color:#fff;font-family:Arial,Helvetica,sans-serif}
-  canvas{display:block;width:100vw;height:100vh;background:#0f172a;cursor:crosshair}
-  #hud{position:fixed;inset:0;pointer-events:none}
-  #stats{position:absolute;top:16px;left:16px;display:flex;gap:8px;flex-wrap:wrap}
-  .box{background:rgba(15,23,42,.85);border:1px solid rgba(255,255,255,.25);border-radius:9px;padding:8px 12px;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,.3)}
-  #help{position:absolute;top:16px;right:16px;text-align:right;color:#e2e8f0;font-size:12px;line-height:1.5;text-shadow:0 1px 3px rgba(0,0,0,.8)}
-  #cross{position:absolute;left:50%;top:50%;width:22px;height:22px;transform:translate(-50%,-50%)}
-  #cross:before,#cross:after{content:"";position:absolute;background:#fff;box-shadow:0 0 6px #fff}
-  #cross:before{width:2px;height:22px;left:10px}
-  #cross:after{height:2px;width:22px;top:10px}
-  #bottom{position:absolute;left:16px;bottom:16px;width:240px}
-  #healthLabel{font-size:12px;margin-bottom:6px;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.8)}
-  #healthBar{height:14px;background:rgba(255,255,255,.2);border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.3)}
-  #healthFill{height:100%;width:100%;background:#38ef7d}
-  #ammo{position:absolute;right:16px;bottom:16px;background:rgba(15,23,42,.85);border:1px solid rgba(255,255,255,.25);padding:10px 14px;border-radius:10px;font-size:21px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.3)}
-  #message{position:absolute;left:50%;top:12%;transform:translateX(-50%);font-size:22px;font-weight:800;text-shadow:0 2px 12px #000;opacity:0}
-  #overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at center,rgba(30,41,59,.6),rgba(15,23,42,.92));z-index:5}
-  .panel{width:min(560px,calc(100vw - 30px));padding:30px;text-align:center;border-radius:18px;background:rgba(15,23,42,.95);border:1px solid rgba(255,255,255,.25);box-shadow:0 25px 80px rgba(0,0,0,.6)}
-  h1{font-size:clamp(36px,8vw,62px);margin:0 0 8px;letter-spacing:2px;color:#38bdf8}
-  p{color:#cbd5e1;line-height:1.55}
-  button{margin-top:12px;border:0;border-radius:11px;padding:13px 23px;font-size:16px;font-weight:800;background:#38ef7d;color:#07120b;cursor:pointer;box-shadow:0 4px 14px rgba(56,239,125,.4)}
-  #damage{position:fixed;inset:0;background:rgba(255,40,60,.38);opacity:0;pointer-events:none;z-index:4}
-  @media(max-width:700px){#help{display:none}#bottom{width:180px}}
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#071018;color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  #game{position:fixed;inset:0}
+  canvas{display:block}
+  .ui{position:fixed;inset:0;pointer-events:none}
+  .panel{
+    background:linear-gradient(180deg,var(--glass2),var(--glass));
+    border:1px solid var(--line);
+    box-shadow:0 14px 40px rgba(0,0,0,.28);
+    backdrop-filter:blur(14px);
+    border-radius:16px;
+  }
+  #topbar{position:absolute;top:14px;left:14px;right:14px;display:flex;gap:12px;justify-content:space-between}
+  .brand{padding:10px 14px;display:flex;align-items:center;gap:11px;min-width:230px}
+  .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(145deg,#74efaa,#1a7f4b);display:grid;place-items:center;font-weight:900;color:#062113}
+  .brand b{display:block;font-size:14px;letter-spacing:.08em;text-transform:uppercase}
+  .brand span{font-size:11px;color:var(--muted)}
+  .status{display:flex;align-items:center;gap:8px;padding:10px 12px}
+  .stat{min-width:72px;padding:2px 9px;text-align:center;border-left:1px solid var(--line)}
+  .stat:first-child{border-left:0}
+  .stat .v{font-weight:800;font-size:15px}
+  .stat .k{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+  #rightbar{display:flex;gap:12px;align-items:flex-start}
+  #wind{padding:11px 13px;min-width:145px}
+  #wind .row{display:flex;justify-content:space-between;align-items:center}
+  #wind .big{font-size:17px;font-weight:900}
+  #wind .small{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+  #windArrow{font-size:24px;line-height:1}
+  #help{padding:9px 12px;font-size:11px;color:var(--muted)}
+
+  #leftPanel{position:absolute;left:14px;top:115px;width:205px;padding:12px}
+  .sectionTitle{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.13em;margin-bottom:7px}
+  .club{
+    width:100%;border:1px solid transparent;background:rgba(255,255,255,.04);color:var(--text);
+    margin:5px 0;padding:9px 10px;border-radius:10px;text-align:left;cursor:pointer;pointer-events:auto;
+    display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:12px
+  }
+  .club:hover{background:rgba(255,255,255,.08)}
+  .club.active{border-color:rgba(114,230,162,.5);background:rgba(114,230,162,.12)}
+  .club .dist{color:#b9c7d3;font-weight:600;font-size:10px}
+  #aimPanel{position:absolute;right:14px;top:115px;width:255px;padding:13px}
+  .aimLine{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:8px 0;font-size:11px}
+  .aimLine strong{font-size:13px}
+  input[type=range]{width:100%;pointer-events:auto;accent-color:var(--accent)}
+  .mini{font-size:10px;color:var(--muted)}
+  .toggleRow{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+  .toggle{cursor:pointer;pointer-events:auto;padding:5px 8px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid var(--line);font-size:10px}
+  .toggle.on{background:rgba(114,230,162,.12);border-color:rgba(114,230,162,.35);color:#c7ffdd}
+
+  #bottom{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:end;gap:12px;width:min(740px,calc(100% - 28px))}
+  #shotControls{flex:1;padding:12px 14px}
+  .readouts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+  .readout{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:10px;padding:7px 8px}
+  .readout .k{font-size:9px;color:var(--muted);text-transform:uppercase}
+  .readout .v{font-size:14px;font-weight:850;margin-top:2px}
+  #powerWrap{position:relative;height:25px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid var(--line);overflow:hidden}
+  #powerBar{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,#5fcf90,#f4d35e,#ff8b7a);border-radius:999px}
+  #sweetSpot{position:absolute;top:0;bottom:0;left:72%;width:8%;background:rgba(255,255,255,.16)}
+  #powerText{position:absolute;inset:0;display:grid;place-items:center;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+  #shotBtn{margin-top:10px;width:100%;height:44px;border:0;border-radius:12px;background:linear-gradient(135deg,#8cf5b5,#43c77f);color:#042012;font-weight:950;letter-spacing:.05em;cursor:pointer;pointer-events:auto;font-size:14px;box-shadow:0 10px 24px rgba(39,176,104,.2)}
+  #shotBtn:active{transform:translateY(1px)}
+  #shotBtn:disabled{opacity:.45;cursor:not-allowed}
+  #cameraControls{display:flex;gap:8px}
+  .camBtn{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:rgba(8,15,22,.76);color:var(--text);cursor:pointer;pointer-events:auto;font-weight:800}
+  #toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.98);opacity:0;transition:.25s ease;padding:13px 18px;border-radius:13px;background:rgba(5,11,16,.9);border:1px solid var(--line);font-weight:850;pointer-events:none}
+  #toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+
+  #scorecard{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(1,7,11,.6);backdrop-filter:blur(7px);pointer-events:auto}
+  #scoreInner{width:min(520px,calc(100% - 28px));padding:20px}
+  #scoreInner h1{margin:0 0 5px;font-size:22px}
+  #scoreInner p{margin:0 0 16px;color:var(--muted);font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{padding:9px;border-bottom:1px solid var(--line);text-align:left}
+  th{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+  .scoreActions{display:flex;gap:8px;margin-top:15px}
+  .scoreActions button{flex:1;height:40px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;font-weight:800}
+  .scoreActions .primary{background:var(--accent);color:#072114;border-color:transparent}
+
+  #mobileAim{position:absolute;left:50%;bottom:115px;transform:translateX(-50%);display:none;gap:8px}
+  #mobileAim button{pointer-events:auto;border:1px solid var(--line);background:rgba(8,15,22,.78);color:var(--text);width:42px;height:42px;border-radius:12px;font-weight:900}
+  #dragHint{position:absolute;right:18px;bottom:105px;font-size:10px;color:rgba(255,255,255,.62);display:none}
+
+  #crosshair{
+    position:absolute;left:50%;top:50%;width:28px;height:28px;transform:translate(-50%,-50%);pointer-events:none;opacity:.85
+  }
+  #crosshair:before,#crosshair:after{content:"";position:absolute;background:rgba(255,255,255,.85)}
+  #crosshair:before{left:13px;top:2px;width:2px;height:24px}
+  #crosshair:after{left:2px;top:13px;width:24px;height:2px}
+
+  @media (max-width: 900px){
+    #leftPanel{width:175px}
+    #aimPanel{width:215px}
+  }
+  @media (max-width: 720px){
+    #leftPanel{left:10px;top:88px;width:150px}
+    #aimPanel{right:10px;top:88px;width:175px}
+    #help{display:none}
+    #topbar{top:8px;left:8px;right:8px}
+    .brand{min-width:0;padding:8px 10px}
+    .brand span{display:none}
+    .status{padding:8px 7px}
+    .stat{min-width:54px;padding:2px 6px}
+    #bottom{bottom:8px;width:calc(100% - 16px)}
+    #shotControls{padding:9px}
+    .readouts{grid-template-columns:repeat(2,1fr)}
+    #cameraControls{display:none}
+    #mobileAim{display:flex}
+    #dragHint{display:block}
+  }
 </style>
 </head>
 <body>
-<canvas id="c"></canvas>
-
-<div id="hud">
-  <div id="stats">
-    <div class="box">SCORE: <b id="score">0</b></div>
-    <div class="box">WAVE: <b id="wave">1</b></div>
-    <div class="box">ENEMIES: <b id="enemyCount">0</b></div>
+<div id="game"></div>
+<div class="ui">
+  <div id="topbar">
+    <div class="brand panel">
+      <div class="logo">⛳</div>
+      <div><b>Fairway Apex</b><span>3D Golf • Practice Course</span></div>
+    </div>
+    <div id="rightbar">
+      <div id="wind" class="panel">
+        <div class="row"><div><div class="small">Wind</div><div class="big" id="windText">8 mph</div></div><div id="windArrow">↗</div></div>
+        <div class="mini" id="windAdvice">Crosswind • slight draw</div>
+      </div>
+      <div id="help" class="panel">WASD / arrows • mouse drag • Space = shot • C = camera • R = reset hole</div>
+    </div>
+    <div class="panel status">
+      <div class="stat"><div class="v" id="holeStat">1 / 6</div><div class="k">Hole</div></div>
+      <div class="stat"><div class="v" id="parStat">4</div><div class="k">Par</div></div>
+      <div class="stat"><div class="v" id="strokesStat">0</div><div class="k">Strokes</div></div>
+      <div class="stat"><div class="v" id="totalStat">E</div><div class="k">Score</div></div>
+    </div>
   </div>
-  <div id="help">WASD move · Mouse aim · Click shoot · R reload · Shift sprint</div>
-  <div id="cross"></div>
-  <div id="message"></div>
+
+  <div id="leftPanel" class="panel">
+    <div class="sectionTitle">Club Bag</div>
+    <button class="club active" data-club="Driver">Driver <span class="dist">245y</span></button>
+    <button class="club" data-club="3 Wood">3 Wood <span class="dist">220y</span></button>
+    <button class="club" data-club="5 Iron">5 Iron <span class="dist">180y</span></button>
+    <button class="club" data-club="7 Iron">7 Iron <span class="dist">155y</span></button>
+    <button class="club" data-club="9 Iron">9 Iron <span class="dist">125y</span></button>
+    <button class="club" data-club="Wedge">Wedge <span class="dist">95y</span></button>
+    <div style="height:5px"></div>
+    <div class="sectionTitle">Lie</div>
+    <div class="mini" id="lieText">Fairway • Full stance</div>
+  </div>
+
+  <div id="aimPanel" class="panel">
+    <div class="sectionTitle">Shot Planner</div>
+    <div class="aimLine"><span>Carry target</span><strong id="targetText">245 yd</strong></div>
+    <input id="targetRange" type="range" min="25" max="260" value="245">
+    <div class="aimLine"><span>Aim</span><strong id="aimText">0°</strong></div>
+    <div class="mini">Drag the mouse / right stick to rotate aim. Hold Shift for fine aim.</div>
+    <div class="toggleRow"><span class="mini">Assist grid</span><button id="gridToggle" class="toggle on">ON</button></div>
+  </div>
+
   <div id="bottom">
-    <div id="healthLabel">HEALTH <b id="healthText">100</b></div>
-    <div id="healthBar"><div id="healthFill"></div></div>
+    <div id="cameraControls">
+      <button class="camBtn" id="camOrbit" title="Orbit camera">◉</button>
+      <button class="camBtn" id="camBall" title="Ball camera">●</button>
+      <button class="camBtn" id="camGreen" title="Green view">⌖</button>
+    </div>
+    <div id="shotControls" class="panel">
+      <div class="readouts">
+        <div class="readout"><div class="k">Club</div><div class="v" id="clubReadout">Driver</div></div>
+        <div class="readout"><div class="k">Wind effect</div><div class="v" id="windEffect">+4 yd</div></div>
+        <div class="readout"><div class="k">Power</div><div class="v" id="powerReadout">0%</div></div>
+        <div class="readout"><div class="k">Spin</div><div class="v" id="spinReadout">2 / 10</div></div>
+      </div>
+      <div id="powerWrap"><div id="powerBar"></div><div id="sweetSpot"></div><div id="powerText">Hold or tap space to charge • release to swing</div></div>
+      <button id="shotBtn">SWING • SPACE</button>
+    </div>
   </div>
-  <div id="ammo">12 / 12</div>
+  <div id="mobileAim">
+    <button id="aimLeft">◀</button><button id="aimReset">●</button><button id="aimRight">▶</button>
+  </div>
+  <div id="dragHint">Drag anywhere to aim • pinch/scroll to zoom</div>
+  <div id="crosshair"></div>
+  <div id="toast"></div>
+  <div id="scorecard">
+    <div id="scoreInner" class="panel">
+      <h1 id="finishTitle">Hole Complete</h1>
+      <p id="finishSub">Nice shot.</p>
+      <table>
+        <thead><tr><th>Hole</th><th>Par</th><th>Strokes</th><th>To Par</th></tr></thead>
+        <tbody id="scoreBody"></tbody>
+      </table>
+      <div class="scoreActions">
+        <button id="restartRound">Restart Round</button>
+        <button id="nextHole" class="primary">Next Hole</button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div id="damage"></div>
-
-<div id="overlay">
-  <div class="panel" id="panel">
-    <h1>NEON STRIKE</h1>
-    <p>A standalone browser FPS. No downloads or external libraries are needed.</p>
-    <p><b>WASD</b> move · <b>Mouse</b> aim · <b>Left click</b> shoot · <b>Shift</b> sprint · <b>R</b> reload</p>
-    <button id="start">ENTER FACILITY</button>
-  </div>
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
 (() => {
-'use strict';
+  'use strict';
 
-const canvas=document.getElementById('c');
-const ctx=canvas.getContext('2d',{alpha:false});
-const scoreEl=document.getElementById('score');
-const waveEl=document.getElementById('wave');
-const enemyCountEl=document.getElementById('enemyCount');
-const healthText=document.getElementById('healthText');
-const healthFill=document.getElementById('healthFill');
-const ammoEl=document.getElementById('ammo');
-const messageEl=document.getElementById('message');
-const overlay=document.getElementById('overlay');
-const panel=document.getElementById('panel');
-const damage=document.getElementById('damage');
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  const lerp = (a,b,t)=>a+(b-a)*t;
+  const deg = v => v * Math.PI / 180;
+  const fmt = n => n >= 0 ? '+'+n : ''+n;
 
-let W=innerWidth,H=innerHeight,DPR=Math.min(devicePixelRatio||1,2);
-function resize(){
-  W=innerWidth;H=innerHeight;DPR=Math.min(devicePixelRatio||1,2);
-  canvas.width=Math.floor(W*DPR);canvas.height=Math.floor(H*DPR);
-  canvas.style.width=W+'px';canvas.style.height=H+'px';
-  ctx.setTransform(DPR,0,0,DPR,0,0);
-}
-addEventListener('resize',resize);resize();
+  // ---------- Core ----------
+  const mount = document.getElementById('game');
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x87b7d1);
+  scene.fog = new THREE.Fog(0x87b7d1, 180, 650);
 
-const FOV=Math.PI/2.9;
-const MAP=28;
-const keys=new Set();
-let mouseDown=false,locked=false,last=performance.now();
-let msgTime=0,shootFlash=0;
+  const camera = new THREE.PerspectiveCamera(62, innerWidth/innerHeight, .1, 1200);
+  camera.position.set(0, 12, 24);
 
-const player={
-  x:0,y:0,a:0,
-  health:100,
-  score:0,
-  wave:1,
-  ammo:12,maxAmmo:12,
-  reload:0,
-  cooldown:0,
-  alive:false,
-  bob:0
-};
+  const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.8));
+  renderer.setSize(innerWidth,innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  mount.appendChild(renderer.domElement);
 
-const walls=[
-  {x:-12,y:-10,w:5,h:3,type:'panel'},
-  {x:11,y:-8,w:6,h:4,type:'panel'},
-  {x:-10,y:10,w:4,h:5,type:'glass'},
-  {x:10,y:11,w:5,h:3,type:'panel'},
-  {x:0,y:-2,w:3,h:2,type:'tech'},
-  {x:0,y:18,w:7,h:3,type:'panel'},
-  {x:-19,y:2,w:3,h:7,type:'tech'},
-  {x:19,y:-2,w:3,h:7,type:'panel'}
-];
+  const hemi = new THREE.HemisphereLight(0xb9e4ff, 0x355d3b, 2.0);
+  scene.add(hemi);
+  const sun = new THREE.DirectionalLight(0xfff1d1, 3.0);
+  sun.position.set(-80,130,40);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048,2048);
+  sun.shadow.camera.left=-140; sun.shadow.camera.right=140; sun.shadow.camera.top=140; sun.shadow.camera.bottom=-140;
+  scene.add(sun);
 
-const enemies=[];
-let spawnQueue=0;
+  // ---------- World ----------
+  const world = new THREE.Group();
+  scene.add(world);
 
-function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
-function normAng(a){while(a>Math.PI)a-=Math.PI*2;while(a<-Math.PI)a+=Math.PI*2;return a}
-function dist(x1,y1,x2,y2){return Math.hypot(x2-x1,y2-y1)}
-function blocked(x,y,r=.42){
-  if(x<-MAP+r||x>MAP-r||y<-MAP+r||y>MAP-r)return true;
-  for(const w of walls){
-    if(x>w.x-w.w/2-r&&x<w.x+w.w/2+r&&y>w.y-w.h/2-r&&y<w.y+w.h/2+r)return true;
+  function mat(color, rough=.85, metal=0){
+    return new THREE.MeshStandardMaterial({color, roughness:rough, metalness:metal});
   }
-  return false;
-}
-function moveWithCollisions(nx,ny){
-  if(!blocked(nx,player.y))player.x=nx;
-  if(!blocked(player.x,ny))player.y=ny;
-}
 
-function randomSpawn(){
-  for(let i=0;i<100;i++){
-    const x=-24+Math.random()*48,y=-24+Math.random()*48;
-    if(dist(x,y,player.x,player.y)>11&&!blocked(x,y,.5))return{x,y};
-  }
-  return{x:22,y:22};
-}
-
-function newEnemy(){
-  const p=randomSpawn();
-  enemies.push({
-    x:p.x,y:p.y,
-    hp:100,
-    speed:1.25+Math.random()*.85+player.wave*.06,
-    attack:.4+Math.random(),
-    phase:Math.random()*Math.PI*2,
-    hit:0
+  const terrainMat = mat(0x3b8e51, 1);
+  const fairwayMat = mat(0x63ae5e, .95);
+  const greenMat = mat(0x86c968, .94);
+  const sandMat = mat(0xd8be82, 1);
+  const waterMat = new THREE.MeshPhysicalMaterial({
+    color:0x2b9ac0, roughness:.18, metalness:.05, transmission:.05, transparent:true, opacity:.88
   });
-}
 
-function startWave(){
-  spawnQueue=Math.min(3+player.wave*2,22);
-  showMessage('WAVE '+player.wave,1.2);
-}
+  // Main terrain
+  const groundGeo = new THREE.PlaneGeometry(760,760,80,80);
+  const p = groundGeo.attributes.position;
+  for(let i=0;i<p.count;i++){
+    const x=p.getX(i), z=p.getY(i);
+    let y = 2.2*Math.sin(x*.018) + 1.4*Math.cos(z*.021) + .8*Math.sin((x+z)*.012);
+    if (Math.abs(x)<100 && Math.abs(z)<180) y*=.35;
+    p.setZ(i,y);
+  }
+  groundGeo.rotateX(-Math.PI/2);
+  const ground = new THREE.Mesh(groundGeo, terrainMat);
+  ground.receiveShadow = true;
+  world.add(ground);
 
-function updateHUD(){
-  scoreEl.textContent=player.score;
-  waveEl.textContent=player.wave;
-  enemyCountEl.textContent=enemies.length+spawnQueue;
-  healthText.textContent=Math.max(0,Math.ceil(player.health));
-  healthFill.style.width=clamp(player.health,0,100)+'%';
-  ammoEl.textContent=player.reload>0?'RELOADING...':player.ammo+' / '+player.maxAmmo;
-}
+  const hole = {
+    par: 4,
+    tee: new THREE.Vector3(0, .55, 250),
+    pin: new THREE.Vector3(12, .42, -15),
+    fairwayWidth: 32
+  };
 
-function showMessage(t,time=.9){
-  messageEl.textContent=t;messageEl.style.opacity=1;msgTime=time;
-}
+  // Fairway ribbon-ish area via scaled plane
+  const fwGeo = new THREE.PlaneGeometry(90, 410, 1, 20);
+  fwGeo.rotateX(-Math.PI/2);
+  const fw = new THREE.Mesh(fwGeo, fairwayMat);
+  fw.scale.x=.55; fw.position.set(0,.16,112);
+  fw.receiveShadow=true;
+  world.add(fw);
 
-function takeDamage(n){
-  player.health-=n;
-  damage.style.opacity=.85;
-  setTimeout(()=>damage.style.opacity=0,70);
-  if(player.health<=0)gameOver();
-}
+  // Green
+  const green = new THREE.Mesh(new THREE.CircleGeometry(25,64), greenMat);
+  green.rotation.x=-Math.PI/2; green.position.copy(hole.pin); green.position.y=.48;
+  green.scale.set(1.12,.86,1);
+  green.receiveShadow=true;
+  world.add(green);
 
-function reload(){
-  if(!player.alive||player.reload>0||player.ammo===player.maxAmmo)return;
-  player.reload=.75;showMessage('RELOADING',.75);
-}
+  // Fringe
+  const fringe = new THREE.Mesh(new THREE.RingGeometry(23.5,31,64), mat(0x6ab65f,.98));
+  fringe.rotation.x=-Math.PI/2; fringe.position.copy(hole.pin); fringe.position.y=.45;
+  fringe.scale.set(1.12,.86,1);
+  fringe.receiveShadow=true;
+  world.add(fringe);
 
-function castRay(angle,maxDist=60){
-  const sin=Math.sin(angle),cos=Math.cos(angle);
-  let t=0,step=.035;
-  while(t<maxDist){
-    t+=step;
-    const x=player.x+sin*t,y=player.y+cos*t;
-    if(x<-MAP||x>MAP||y<-MAP||y>MAP){
-      return{x,y,t,side:Math.abs(x)>Math.abs(y)?0:1,type:'outer'};
+  // Bunkers
+  function addBunker(x,z,sx,sz,rot=0){
+    const g=new THREE.CircleGeometry(1,32);
+    const m=new THREE.Mesh(g,sandMat);
+    m.rotation.x=-Math.PI/2; m.rotation.z=rot; m.scale.set(sx,sz,1); m.position.set(x,.39,z);
+    m.receiveShadow=true; world.add(m);
+    const edge=new THREE.Mesh(new THREE.TorusGeometry(1,32,7,64),mat(0x5f9750,.98));
+    edge.rotation.x=Math.PI/2; edge.rotation.z=rot; edge.scale.set(sx*1.02,sz*1.02,1); edge.position.set(x,.41,z);
+    world.add(edge);
+  }
+  addBunker(-29,70,11,6,-.15);
+  addBunker(31,14,12,7,.24);
+  addBunker(-25,-10,8,6,.15);
+  addBunker(28,-33,9,5,-.35);
+
+  // Water hazard
+  const lake = new THREE.Mesh(new THREE.PlaneGeometry(105,55,1,1), waterMat);
+  lake.rotation.x=-Math.PI/2; lake.position.set(-70,1.15,55); lake.rotation.z=.12;
+  lake.receiveShadow=true; world.add(lake);
+  const shore = new THREE.Mesh(new THREE.RingGeometry(.96,1.05,48),mat(0x85a66a,1));
+  // Tree clusters
+  function addTree(x,z,scale=1){
+    const g=new THREE.Group();
+    const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.8,1.15,7,10),mat(0x624531,1));
+    trunk.position.y=3.3; trunk.castShadow=true; g.add(trunk);
+    for(let i=0;i<3;i++){
+      const crown=new THREE.Mesh(new THREE.IcosahedronGeometry(3.6-i*.45,1),mat(0x286443,1));
+      crown.position.set((Math.random()-.5)*1.7,6.1+i*1.2,(Math.random()-.5)*1.6);
+      crown.scale.set(1,1.05,1); crown.castShadow=true; g.add(crown);
     }
-    for(const w of walls){
-      if(x>w.x-w.w/2&&x<w.x+w.w/2&&y>w.y-w.h/2&&y<w.y+w.h/2){
-        const dx=Math.abs(x-w.x)/(w.w/2);
-        const dy=Math.abs(y-w.y)/(w.h/2);
-        return{x,y,t,side:dx>dy?0:1,type:w.type};
+    g.position.set(x,0,z); g.scale.setScalar(scale); world.add(g);
+  }
+  for(let i=0;i<38;i++){
+    const side = i%2===0 ? -1:1;
+    const x = side*(48+Math.random()*100);
+    const z = 205 - Math.random()*425;
+    addTree(x,z,.75+Math.random()*.75);
+  }
+  for(let i=0;i<18;i++) addTree(-210+Math.random()*420,-190+Math.random()*80,.7+Math.random()*.5);
+
+  // Distant mountains
+  const mountainMat=mat(0x496875,1);
+  for(let i=0;i<10;i++){
+    const h=45+Math.random()*55, r=65+Math.random()*50;
+    const m=new THREE.Mesh(new THREE.ConeGeometry(r,h,7),mountainMat);
+    m.position.set(-400+i*90,h*.42,-300-Math.random()*80);
+    world.add(m);
+  }
+
+  // ---------- Flag / hole ----------
+  const pin = new THREE.Group();
+  const pole=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,5.5,12),mat(0xf3f3f3,.45,.1));
+  pole.position.y=3.1; pole.castShadow=true; pin.add(pole);
+  const flagGeo=new THREE.BufferGeometry();
+  flagGeo.setAttribute('position', new THREE.Float32BufferAttribute([0,0,0, 0,1.75,0, 1.55,1.25,0],3));
+  const flag=new THREE.Mesh(flagGeo,new THREE.MeshStandardMaterial({color:0xf05454,side:THREE.DoubleSide,roughness:.9}));
+  flag.position.set(.1,3.45,0); pin.add(flag);
+  const cup=new THREE.Mesh(new THREE.CylinderGeometry(1.0,1.0,.18,32),mat(0x23342a,.9));
+  cup.position.y=.39; pin.add(cup);
+  pin.position.set(hole.pin.x,0,hole.pin.z); world.add(pin);
+
+  // ---------- Ball ----------
+  const ball = new THREE.Mesh(new THREE.SphereGeometry(.72,32,20), new THREE.MeshStandardMaterial({color:0xffffff,roughness:.22}));
+  ball.castShadow=true; ball.position.copy(hole.tee); world.add(ball);
+
+  // Ball shadow decal
+  const ballShadow=new THREE.Mesh(
+    new THREE.CircleGeometry(.85,24),
+    new THREE.MeshBasicMaterial({color:0x14321b,transparent:true,opacity:.25,depthWrite:false})
+  );
+  ballShadow.rotation.x=-Math.PI/2; world.add(ballShadow);
+
+  // ---------- Assist lines ----------
+  const aimGroup=new THREE.Group(); world.add(aimGroup);
+  const aimLineMat=new THREE.LineDashedMaterial({color:0xffffff,transparent:true,opacity:.72,dashSize:1.3,gapSize:1.1});
+  const aimGeom=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(0,.12,-35)]);
+  const aimLine=new THREE.Line(aimGeom,aimLineMat); aimLine.computeLineDistances(); aimGroup.add(aimLine);
+  const landingRing=new THREE.Mesh(new THREE.RingGeometry(2.7,3.0,48),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.55,side:THREE.DoubleSide}));
+  landingRing.rotation.x=-Math.PI/2; landingRing.position.y=.6; aimGroup.add(landingRing);
+
+  // Green grid
+  const gridGroup=new THREE.Group(); world.add(gridGroup);
+  function buildGreenGrid(){
+    gridGroup.clear();
+    for(let i=-4;i<=4;i++){
+      const pts=[new THREE.Vector3(-18,.56+i*.001,0),new THREE.Vector3(18,.56+i*.001,0)];
+      const l=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.12}));
+      l.rotation.y=deg(0); l.position.copy(hole.pin); gridGroup.add(l);
+    }
+    for(let i=-4;i<=4;i++){
+      const pts=[new THREE.Vector3(0,.56+i*.001,-18),new THREE.Vector3(0,.56+i*.001,18)];
+      const l=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.12}));
+      l.rotation.y=deg(0); l.position.copy(hole.pin); gridGroup.add(l);
+    }
+  }
+  buildGreenGrid();
+
+  // ---------- Trees / details ----------
+  function addRock(x,z,s){
+    const m=new THREE.Mesh(new THREE.DodecahedronGeometry(s,0),mat(0x65706d,.95));
+    m.position.set(x,.9,z); m.rotation.set(Math.random(),Math.random(),Math.random()); m.castShadow=true; world.add(m);
+  }
+  for(let i=0;i<26;i++) addRock((Math.random()-.5)*250,60-Math.random()*360,0.5+Math.random()*1.6);
+
+  // ---------- Gameplay ----------
+  const clubs = {
+    "Driver": {max:245, loft:10.5, spin:2.0, apex:31, roll:.54},
+    "3 Wood": {max:220, loft:14.5, spin:3.2, apex:29, roll:.47},
+    "5 Iron": {max:180, loft:25, spin:5.5, apex:28, roll:.28},
+    "7 Iron": {max:155, loft:33, spin:6.6, apex:26, roll:.22},
+    "9 Iron": {max:125, loft:43, spin:8.2, apex:23, roll:.12},
+    "Wedge": {max:95, loft:54, spin:9.0, apex:20, roll:.05}
+  };
+  let selectedClub="Driver";
+  let aimDeg=0;
+  let power=0;
+  let charging=false;
+  let chargeDir=1;
+  let shotInProgress=false;
+  let strokes=0;
+  let cameraMode=0;
+  let gridOn=true;
+  let lastTime=performance.now();
+  let totalRoundScore=0;
+  let holeDone=false;
+
+  let windAngle=deg(28), windSpeed=8;
+  let windVector = new THREE.Vector3(Math.sin(windAngle),0,Math.cos(windAngle)).multiplyScalar(windSpeed*.095);
+
+  const holeScores=[];
+
+  // shot physics state
+  const velocity=new THREE.Vector3();
+  const spinState={side:0,back:0};
+  let airborne=false;
+  let flightTime=0;
+  let lastBallPos=ball.position.clone();
+  let trail=null;
+
+  function yardLabel(n){ return Math.round(n) + " yd"; }
+  function announce(msg,ms=1350){
+    const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+    clearTimeout(announce._t); announce._t=setTimeout(()=>t.classList.remove('show'),ms);
+  }
+
+  function distanceYards(a,b){
+    return a.distanceTo(b)*1.09; // world units ~= 0.91 yd
+  }
+  function totalScore(){
+    return holeScores.reduce((s,x)=>s+x.strokes,0) - holeScores.reduce((s,x)=>s+x.par,0);
+  }
+  function setUI(){
+    document.getElementById('holeStat').textContent=`${Math.min(holeScores.length+1,6)} / 6`;
+    document.getElementById('parStat').textContent=hole.par;
+    document.getElementById('strokesStat').textContent=strokes;
+    const sc=totalScore();
+    document.getElementById('totalStat').textContent=sc===0?'E':fmt(sc);
+    document.getElementById('clubReadout').textContent=selectedClub;
+    document.getElementById('aimText').textContent=(aimDeg>=0?'+':'')+aimDeg.toFixed(1)+'°';
+    document.getElementById('targetText').textContent=yardLabel(+document.getElementById('targetRange').value);
+    const windAlong = windVector.x*Math.sin(deg(aimDeg)) + windVector.z*Math.cos(deg(aimDeg));
+    document.getElementById('windEffect').textContent=(windAlong>=0?'+':'')+Math.round(windAlong*12)+' yd';
+    document.getElementById('powerReadout').textContent=Math.round(power)+'%';
+    document.getElementById('spinReadout').textContent=(clubs[selectedClub].spin/9).toFixed(1)+' / 10';
+    document.getElementById('windText').textContent=Math.round(windSpeed)+' mph';
+    const degWind=(Math.atan2(windVector.x,windVector.z)*180/Math.PI+360)%360;
+    const dir=['N','NE','E','SE','S','SW','W','NW'][Math.round(degWind/45)%8];
+    document.getElementById('windArrow').textContent=['↑','↗','→','↘','↓','↙','←','↖'][Math.round(degWind/45)%8];
+    const diff=((degWind-(aimDeg+180)+540)%360)-180;
+    document.getElementById('windAdvice').textContent=Math.abs(diff)<18?'Downwind • extra carry':(Math.abs(diff)>72?'Crosswind • use control':'Mixed • watch the apex');
+    document.getElementById('lieText').textContent=shotInProgress?'Ball in motion':(distanceYards(ball.position,hole.pin)<30?'Green / delicate':'Fairway • Full stance');
+    document.getElementById('powerBar').style.width=power+'%';
+    document.getElementById('powerText').textContent=charging?'Release to swing • find the sweet spot':'Hold or tap space to charge • release to swing';
+  }
+
+  function setClub(name){
+    selectedClub=name;
+    document.querySelectorAll('.club').forEach(b=>b.classList.toggle('active',b.dataset.club===name));
+    const max=clubs[name].max;
+    const range=document.getElementById('targetRange');
+    range.max=Math.max(140,Math.round(max*1.12));
+    range.value=Math.min(max, +range.value);
+    setUI();
+  }
+
+  function resetHole(){
+    ball.position.copy(hole.tee);
+    ball.position.y=.8;
+    velocity.set(0,0,0); spinState.side=0; spinState.back=0;
+    airborne=false; flightTime=0; shotInProgress=false; strokes=0; holeDone=false;
+    power=0; charging=false;
+    windSpeed=5+Math.random()*10;
+    windAngle=Math.random()*Math.PI*2;
+    windVector.set(Math.sin(windAngle),0,Math.cos(windAngle)).multiplyScalar(windSpeed*.095);
+    aimDeg=0;
+    setUI();
+    updateAimObjects();
+  }
+
+  function resetRound(){
+    holeScores.length=0; totalRoundScore=0; resetHole(); closeScorecard();
+    announce('Round reset — first tee');
+  }
+
+  function buildScorecard(){
+    const body=document.getElementById('scoreBody'); body.innerHTML='';
+    for(let i=0;i<holeScores.length;i++){
+      const r=holeScores[i];
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${i+1}</td><td>${r.par}</td><td>${r.strokes}</td><td>${r.strokes-r.par>=0?'+':''}${r.strokes-r.par}</td>`;
+      body.appendChild(tr);
+    }
+    const sc=totalScore();
+    document.getElementById('finishTitle').textContent=holeScores.length>=6?'Round Complete':'Hole Complete';
+    document.getElementById('finishSub').textContent=holeScores.length>=6
+      ? `Final score: ${sc===0?'Even':fmt(sc)} to par`
+      : `You made the hole in ${strokes} — ${strokes===hole.par?'par':strokes<hole.par?`${hole.par-strokes} under`:`${strokes-hole.par} over`}.`;
+    document.getElementById('nextHole').textContent=holeScores.length>=6?'Play Again':'Next Hole';
+    document.getElementById('scorecard').style.display='flex';
+  }
+  function closeScorecard(){ document.getElementById('scorecard').style.display='none'; }
+
+  function completeHole(){
+    if(holeDone) return;
+    holeDone=true;
+    holeScores.push({par:hole.par,strokes});
+    localStorage.setItem('fairwayApexBest', Math.min(+localStorage.getItem('fairwayApexBest')||999, totalScore()+0));
+    buildScorecard();
+  }
+
+  function aimForward(){
+    const a=deg(aimDeg);
+    // +aim => to the right in world x
+    return new THREE.Vector3(Math.sin(a),0,-Math.cos(a)).normalize();
+  }
+
+  function updateAimObjects(){
+    const f=aimForward();
+    const start=ball.position.clone(); start.y=.93;
+    const dist=+document.getElementById('targetRange').value/1.09;
+    const end=start.clone().addScaledVector(f,Math.min(dist,250));
+    end.y=.52;
+    aimLine.geometry.dispose();
+    aimLine.geometry=new THREE.BufferGeometry().setFromPoints([start,end]);
+    aimLine.computeLineDistances();
+    landingRing.position.copy(end);
+    landingRing.position.y=.56;
+    aimGroup.visible=!shotInProgress && !holeDone;
+    gridGroup.visible=gridOn && !shotInProgress && !holeDone;
+  }
+
+  // charge/swing
+  function beginCharge(){ if(shotInProgress||holeDone) return; charging=true; }
+  function releaseShot(){
+    if(!charging||shotInProgress||holeDone) return;
+    charging=false;
+    const c=clubs[selectedClub];
+    // Skill accuracy: 76-84% = sweet spot; power becomes distance.
+    const sweet=Math.abs(power-76);
+    let accuracy;
+    if(sweet<7) accuracy=1;
+    else if(sweet<16) accuracy=.92-(sweet-7)*.015;
+    else accuracy=.70-(sweet-16)*.012;
+    accuracy=clamp(accuracy,.48,1);
+    const target=+document.getElementById('targetRange').value;
+    const intended=clamp(target/c.max,.12,1.05);
+    const distance = c.max * intended * (.72+.28*accuracy);
+    const f=aimForward();
+    // Slight randomness in offline arcade physics, reduced near sweet spot
+    const error=(Math.random()-.5)*(1-accuracy)*10;
+    const side=aimDeg+error;
+    const dir=new THREE.Vector3(Math.sin(deg(side)),0,-Math.cos(deg(side))).normalize();
+    const launchSpeed=distance*0.55;
+    velocity.copy(dir).multiplyScalar(launchSpeed);
+    velocity.y=(13 + c.apex*.22) * (.75+.25*intended) * accuracy;
+    velocity.add(windVector.clone().multiplyScalar(4));
+    spinState.side=(Math.random()-.5)*c.spin*.38;
+    spinState.back=c.spin*(.75+accuracy*.35);
+    airborne=true; shotInProgress=true; flightTime=0; strokes++;
+    announce(sweet<7?'PURE STRIKE':'Shot away',900);
+    setUI();
+    updateAimObjects();
+    createTrail();
+  }
+
+  function createTrail(){
+    if(trail){ world.remove(trail); trail=null; }
+    const geo=new THREE.BufferGeometry().setFromPoints([ball.position.clone(),ball.position.clone()]);
+    trail=new THREE.Line(geo,new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.28}));
+    world.add(trail);
+  }
+
+  function groundHeight(x,z){
+    // Approximation consistent with terrain and playable fairway.
+    let y = 2.2*Math.sin(x*.018) + 1.4*Math.cos(z*.021) + .8*Math.sin((x+z)*.012);
+    if (Math.abs(x)<100 && Math.abs(z)<180) y*=.35;
+    // flatten green
+    const dx=(x-hole.pin.x)/1.12, dz=(z-hole.pin.z)/.86;
+    const d=Math.sqrt(dx*dx+dz*dz);
+    if(d<30) y=.48;
+    return y;
+  }
+
+  function updateShot(dt){
+    if(!shotInProgress) return;
+    flightTime+=dt;
+    // Ballistic flight with drag / spin
+    const c=clubs[selectedClub];
+    velocity.y-=24*dt;
+    velocity.x*=Math.pow(.996,dt*60); velocity.z*=Math.pow(.996,dt*60);
+    velocity.x+=windVector.x*0.34*dt; velocity.z+=windVector.z*0.34*dt;
+    ball.position.addScaledVector(velocity,dt);
+    ball.rotation.x += velocity.z*dt*1.9;
+    ball.rotation.z -= velocity.x*dt*1.9;
+
+    const groundY=groundHeight(ball.position.x,ball.position.z)+.72;
+    if(trail){
+      const pos=trail.geometry.attributes.position.array;
+      pos[0]=lastBallPos.x;pos[1]=lastBallPos.y;pos[2]=lastBallPos.z;
+      pos[3]=ball.position.x;pos[4]=ball.position.y;pos[5]=ball.position.z;
+      trail.geometry.attributes.position.needsUpdate=true;
+    }
+    lastBallPos.copy(ball.position);
+
+    if(ball.position.y<=groundY){
+      ball.position.y=groundY;
+      if(velocity.length()>1.35){
+        const normal=new THREE.Vector3(0,1,0);
+        const tangent=velocity.clone().sub(normal.clone().multiplyScalar(velocity.dot(normal)));
+        const rollFactor=.92-c.roll*.25;
+        velocity.set(tangent.x*rollFactor,0,tangent.z*rollFactor);
+        // backspin shortens roll; side spin bends trajectory
+        const sideDir=new THREE.Vector3(velocity.z,0,-velocity.x).normalize();
+        velocity.addScaledVector(sideDir,spinState.side*.08);
+        velocity.multiplyScalar(0.72);
+        airborne=false;
+      }else{
+        velocity.multiplyScalar(.18);
+        airborne=false;
+        shotInProgress=false;
+        if(trail){ world.remove(trail); trail=null; }
+        const d=distanceYards(ball.position,hole.pin);
+        if(d<2.2){
+          ball.position.set(hole.pin.x,.81,hole.pin.z);
+          announce(strokes===hole.par?'PAR!':strokes<hole.par?'BIRDIE!':'IN THE HOLE!',1300);
+          setTimeout(completeHole,800);
+        } else {
+          announce(d<25?'Nice touch — on the green':'Ball down. Pick the next shot.',1000);
+        }
       }
     }
+    setUI();
   }
-  return{x:player.x+sin*maxDist,y:player.y+cos*maxDist,t:maxDist,side:0,type:'outer'};
-}
 
-function shoot(){
-  if(!player.alive||!locked||player.reload>0||player.cooldown>0)return;
-  if(player.ammo<=0){reload();return;}
-  player.ammo--;
-  player.cooldown=.18;
-  shootFlash=.045;
-
-  let best=null,bestDist=999;
-  for(const e of enemies){
-    const dx=e.x-player.x,dy=e.y-player.y,d=Math.hypot(dx,dy);
-    if(d>55)continue;
-    const ang=normAng(Math.atan2(dx,dy)-player.a);
-    const angularSize=Math.min(.15,.55/d);
-    if(Math.abs(ang)<angularSize){
-      const wallHit=castRay(player.a,d);
-      if(wallHit.t+0.05>=d && d<bestDist){best=e;bestDist=d;}
+  // ---------- Camera ----------
+  const camTarget=new THREE.Vector3();
+  let orbitYaw=0, orbitPitch=.28, zoom=30;
+  const camGoal=new THREE.Vector3();
+  const camLook=new THREE.Vector3();
+  function updateCamera(){
+    if(cameraMode===0){ // follow/behind ball
+      const f=aimForward();
+      camTarget.lerp(ball.position,.08);
+      const desired=ball.position.clone().addScaledVector(f,-zoom);
+      desired.y += 9+zoom*.12;
+      camGoal.copy(desired);
+      camLook.copy(ball.position).addScaledVector(f,10);
+      camLook.y += 3;
+    } else if(cameraMode===1){ // free orbit
+      const r=zoom;
+      camTarget.lerp(ball.position,.08);
+      camGoal.set(
+        camTarget.x + Math.sin(orbitYaw)*Math.cos(orbitPitch)*r,
+        camTarget.y + Math.sin(orbitPitch)*r,
+        camTarget.z + Math.cos(orbitYaw)*Math.cos(orbitPitch)*r
+      );
+      camLook.copy(camTarget);
+    } else { // green cam
+      camGoal.copy(hole.pin).add(new THREE.Vector3(0,32,32));
+      camLook.copy(hole.pin);
     }
+    camera.position.lerp(camGoal,.08);
+    camera.lookAt(camLook);
   }
 
-  if(best){
-    best.hp-=50;best.hit=.09;
-    player.score+=best.hp<=0?100:15;
-    if(best.hp<=0){
-      const i=enemies.indexOf(best);if(i>=0)enemies.splice(i,1);
-      if(enemies.length===0&&spawnQueue===0&&player.alive){
-        player.wave++;startWave();
-      }
+  function setCameraMode(m){
+    cameraMode=m;
+    announce(['Follow camera','Orbit camera','Green view'][m],700);
+  }
+
+  // ---------- Input ----------
+  let dragging=false, lastX=0,lastY=0;
+  renderer.domElement.addEventListener('pointerdown',e=>{
+    dragging=true; lastX=e.clientX; lastY=e.clientY;
+    renderer.domElement.setPointerCapture?.(e.pointerId);
+  });
+  renderer.domElement.addEventListener('pointermove',e=>{
+    if(!dragging) return;
+    const dx=e.clientX-lastX, dy=e.clientY-lastY;
+    lastX=e.clientX; lastY=e.clientY;
+    const fine=e.shiftKey?.35:1;
+    if(e.buttons===2 || e.pointerType==='touch'){
+      aimDeg=clamp(aimDeg+dx*.06*fine,-55,55);
+      orbitYaw-=dx*.006; orbitPitch=clamp(orbitPitch+dy*.003,-.3,1.05);
+      setUI(); updateAimObjects();
     }
+  });
+  renderer.domElement.addEventListener('pointerup',e=>{dragging=false;});
+  renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());
+  renderer.domElement.addEventListener('wheel',e=>{
+    zoom=clamp(zoom+e.deltaY*.018,12,60);
+  },{passive:true});
+
+  window.addEventListener('keydown',e=>{
+    if(['INPUT','BUTTON'].includes(document.activeElement.tagName)) return;
+    if(e.code==='Space'){e.preventDefault(); if(!charging) beginCharge();}
+    if(e.code==='ArrowLeft' || e.code==='KeyA'){aimDeg=clamp(aimDeg-(e.shiftKey?.25:1),-55,55);setUI();updateAimObjects();}
+    if(e.code==='ArrowRight' || e.code==='KeyD'){aimDeg=clamp(aimDeg+(e.shiftKey?.25:1),-55,55);setUI();updateAimObjects();}
+    if(e.code==='KeyC') setCameraMode((cameraMode+1)%3);
+    if(e.code==='KeyR') resetHole();
+    if(e.code==='Digit1')setClub('Driver');
+    if(e.code==='Digit2')setClub('3 Wood');
+    if(e.code==='Digit3')setClub('5 Iron');
+    if(e.code==='Digit4')setClub('7 Iron');
+    if(e.code==='Digit5')setClub('9 Iron');
+    if(e.code==='Digit6')setClub('Wedge');
+  });
+  window.addEventListener('keyup',e=>{if(e.code==='Space')releaseShot();});
+
+  document.getElementById('shotBtn').addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    if(!charging) beginCharge();
+  });
+  document.getElementById('shotBtn').addEventListener('pointerup',e=>{e.preventDefault();releaseShot();});
+  document.getElementById('shotBtn').addEventListener('pointercancel',()=>releaseShot());
+
+  document.querySelectorAll('.club').forEach(btn=>btn.addEventListener('click',()=>setClub(btn.dataset.club)));
+  document.getElementById('targetRange').addEventListener('input',()=>{setUI();updateAimObjects();});
+  document.getElementById('gridToggle').addEventListener('click',()=>{
+    gridOn=!gridOn; const b=document.getElementById('gridToggle'); b.textContent=gridOn?'ON':'OFF'; b.classList.toggle('on',gridOn); updateAimObjects();
+  });
+  document.getElementById('camOrbit').onclick=()=>setCameraMode(1);
+  document.getElementById('camBall').onclick=()=>setCameraMode(0);
+  document.getElementById('camGreen').onclick=()=>setCameraMode(2);
+  document.getElementById('aimLeft').onclick=()=>{aimDeg=clamp(aimDeg-2,-55,55);setUI();updateAimObjects()};
+  document.getElementById('aimRight').onclick=()=>{aimDeg=clamp(aimDeg+2,-55,55);setUI();updateAimObjects()};
+  document.getElementById('aimReset').onclick=()=>{aimDeg=0;setUI();updateAimObjects()};
+  document.getElementById('restartRound').onclick=resetRound;
+  document.getElementById('nextHole').onclick=()=>{
+    if(holeScores.length>=6){resetRound();return;}
+    closeScorecard(); resetHole(); announce('Next tee — new conditions',1000);
+  };
+
+  // Power loop
+  function updatePower(dt){
+    if(!charging){ power=lerp(power,0,.12); return; }
+    power += chargeDir*dt*92;
+    if(power>=100){power=100;chargeDir=-1;}
+    if(power<=4){power=4;chargeDir=1;}
+    setUI();
   }
-  updateHUD();
-}
 
-function gameOver(){
-  player.alive=false;locked=false;
-  panel.innerHTML='<h1>GAME OVER</h1>'+
-    '<p>Final score: <b>'+player.score+'</b></p>'+
-    '<p>You reached wave <b>'+player.wave+'</b>.</p>'+
-    '<button id="restart">PLAY AGAIN</button>';
-  overlay.style.display='flex';
-  document.getElementById('restart').onclick=reset;
-}
-
-function reset(){
-  player.x=0;player.y=0;player.a=0;
-  player.health=100;player.score=0;player.wave=1;
-  player.ammo=12;player.reload=0;player.cooldown=0;player.alive=true;
-  enemies.length=0;spawnQueue=0;overlay.style.display='none';
-  startWave();updateHUD();
-  canvas.requestPointerLock?.();
-}
-
-document.getElementById('start').onclick=reset;
-
-canvas.addEventListener('click',()=>{
-  if(!locked&&player.alive){canvas.requestPointerLock?.();return;}
-  shoot();
-});
-canvas.addEventListener('mousedown',e=>{if(e.button===0)mouseDown=true});
-addEventListener('mouseup',e=>{if(e.button===0)mouseDown=false});
-document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===canvas});
-document.addEventListener('mousemove',e=>{
-  if(!locked||!player.alive)return;
-  player.a+=e.movementX*.0024;
-});
-addEventListener('keydown',e=>{
-  keys.add(e.code);
-  if(e.code==='KeyR')reload();
-});
-addEventListener('keyup',e=>keys.delete(e.code));
-
-function update(dt,now){
-  if(!player.alive)return;
-  if(player.cooldown>0)player.cooldown-=dt;
-  if(player.reload>0){
-    player.reload-=dt;
-    if(player.reload<=0){player.reload=0;player.ammo=player.maxAmmo;showMessage('READY',.5)}
+  function updateBallShadow(){
+    ballShadow.position.set(ball.position.x,.52,ball.position.z);
+    const h=clamp(ball.position.y-.7,.1,25);
+    const s=clamp(1.2-h*.035,.35,1.15);
+    ballShadow.scale.setScalar(s);
+    ballShadow.material.opacity=clamp(.28-h*.012,.06,.28);
   }
-  if(msgTime>0){msgTime-=dt;if(msgTime<=0)messageEl.style.opacity=0}
 
-  if(spawnQueue>0){
-    if(!update.spawnTimer)update.spawnTimer=.1;
-    update.spawnTimer-=dt;
-    if(update.spawnTimer<=0){
-      newEnemy();spawnQueue--;update.spawnTimer=.16;updateHUD();
+  // clouds
+  for(let i=0;i<12;i++){
+    const cloud=new THREE.Group();
+    for(let j=0;j<5;j++){
+      const puff=new THREE.Mesh(new THREE.SphereGeometry(9+Math.random()*7,12,10),new THREE.MeshStandardMaterial({color:0xf3f8fb,roughness:1,transparent:true,opacity:.85}));
+      puff.position.set((j-2)*8,(Math.random()-.5)*2,Math.random()*6);
+      cloud.add(puff);
     }
+    cloud.position.set(-250+Math.random()*500,75+Math.random()*35,-280+Math.random()*420);
+    world.add(cloud);
   }
 
-  let mx=0,my=0;
-  if(keys.has('KeyW'))my+=1;
-  if(keys.has('KeyS'))my-=1;
-  if(keys.has('KeyD'))mx+=1;
-  if(keys.has('KeyA'))mx-=1;
-  const len=Math.hypot(mx,my)||1;mx/=len;my/=len;
-  const sprint=keys.has('ShiftLeft')||keys.has('ShiftRight');
-  const speed=sprint?7.5:4.8;
-  const sin=Math.sin(player.a),cos=Math.cos(player.a);
-  const dx=(sin*my+cos*mx)*speed*dt;
-  const dy=(cos*my-sin*mx)*speed*dt;
-  moveWithCollisions(player.x+dx,player.y+dy);
-
-  if(mx||my)player.bob+=dt*10;else player.bob*=.9;
-  if(mouseDown)shoot();
-
-  for(const e of enemies.slice()){
-    e.attack-=dt;if(e.hit>0)e.hit-=dt;
-    const dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy);
-    if(d>1.8){
-      const ux=dx/d,uy=dy/d;
-      const side=-Math.sin(now*.0015+e.phase)*.18;
-      const nx=e.x+(ux+side*(-uy))*e.speed*dt;
-      const ny=e.y+(uy+side*ux)*e.speed*dt;
-      if(!blocked(nx,ny,.36)){e.x=nx;e.y=ny}
-      else if(!blocked(e.x+ux*e.speed*dt,e.y,.36))e.x+=ux*e.speed*dt;
-      else if(!blocked(e.x,e.y+uy*e.speed*dt,.36))e.y+=uy*e.speed*dt;
-    }else if(e.attack<=0){
-      takeDamage(8+player.wave*.6);
-      e.attack=.7+Math.random()*.6;
-    }
+  // ---------- Main loop ----------
+  function animate(now){
+    requestAnimationFrame(animate);
+    const dt=clamp((now-lastTime)/1000,.001,.034); lastTime=now;
+    updatePower(dt);
+    updateShot(dt);
+    if(!charging) setUI();
+    updateAimObjects();
+    updateBallShadow();
+    updateCamera();
+    // Flag flutter
+    flag.rotation.y = Math.sin(now*.002)*.18 + windVector.x*.05;
+    // subtle water movement
+    lake.material.opacity=.82 + Math.sin(now*.0012)*.04;
+    renderer.render(scene,camera);
   }
-  updateHUD();
-}
+  animate(performance.now());
 
-function wallIntersect(angle){
-  return castRay(angle,60);
-}
+  window.addEventListener('resize',()=>{
+    camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
+  });
 
-// Solid Basic Environment Rendering (No complex textures or lines)
-function drawEnvironment(){
-  // Solid ceiling
-  ctx.fillStyle='#2b374a';
-  ctx.fillRect(0,0,W,H/2);
-
-  // Solid floor
-  ctx.fillStyle='#1e293b';
-  ctx.fillRect(0,H/2,W,H/2);
-
-  // Clean, sleek, flush recessed light fixtures on ceiling
-  for(let x=W*0.08; x<W; x+=W*0.22){
-    ctx.fillStyle='#0f172a';
-    ctx.fillRect(x-2, 8, W*0.08+4, 10);
-    ctx.fillStyle='#38bdf8';
-    ctx.shadowColor='#38bdf8';
-    ctx.shadowBlur=10;
-    ctx.fillRect(x, 10, W*0.08, 6);
-    ctx.shadowBlur=0;
-  }
-}
-
-function drawScene(){
-  drawEnvironment();
-
-  const rayCount=Math.min(Math.floor(W/2),700);
-  const colW=W/rayCount;
-  const zbuf=new Array(rayCount);
-
-  for(let i=0;i<rayCount;i++){
-    const a=player.a-FOV/2+(i+.5)/rayCount*FOV;
-    const hit=wallIntersect(a);
-    const corrected=hit.t*Math.cos(normAng(a-player.a));
-    zbuf[i]=corrected;
-
-    const height=Math.min(H*2, H/(corrected+.001)*1.55);
-    const top=H/2-height/2;
-
-    const shade=clamp(1-corrected/60, 0.5, 1.0);
-
-    // Solid basic wall colors (No patterns, stripes, or textures)
-    let baseR=90, baseG=110, baseB=140; // Default solid wall
-    if(hit.type==='glass'){ baseR=38; baseG=189; baseB=248; } // Cyan accent
-    else if(hit.type==='tech'){ baseR=100; baseG=130; baseB=170; }
-    else if(hit.type==='outer'){ baseR=75; baseG=95; baseB=120; }
-
-    if(hit.side===1){ baseR*=0.82; baseG*=0.82; baseB*=0.82; }
-
-    const r=Math.floor(baseR*shade);
-    const g=Math.floor(baseG*shade);
-    const b=Math.floor(baseB*shade);
-
-    ctx.fillStyle='rgb('+r+','+g+','+b+')';
-    ctx.fillRect(i*colW,top,colW+1,height);
-  }
-
-  // Draw Enemies (Sleek Combat Droids)
-  const sprites=[];
-  for(const e of enemies){
-    const dx=e.x-player.x,dy=e.y-player.y,d=Math.hypot(dx,dy);
-    const ang=normAng(Math.atan2(dx,dy)-player.a);
-    if(Math.abs(ang)<FOV/2+.18){
-      const screenX=W/2+Math.tan(ang)/(Math.tan(FOV/2))*W/2;
-      const depth=d*Math.cos(ang);
-      const idx=Math.floor(clamp(screenX/W*rayCount,0,rayCount-1));
-      if(depth<zbuf[idx]+.15)sprites.push({e,d,screenX,depth});
-    }
-  }
-  sprites.sort((a,b)=>b.depth-a.depth);
-
-  for(const s of sprites){
-    const size=H/(s.depth+.001)*1.35;
-    const x=s.screenX,y=H/2+size*.13;
-    const e=s.e;
-    ctx.save();
-    ctx.translate(x,y);
-    const hurt=e.hit>0;
-
-    // Sleek Modern Droid
-    ctx.shadowColor=hurt?'#ffffff':(e.attack<0.2?'#ff3300':'#00e1ff');
-    ctx.shadowBlur=hurt?22:12;
-
-    // Torso Armor
-    ctx.fillStyle=hurt?'#ffffff':'#1e293b';
-    ctx.beginPath();
-    ctx.moveTo(-size*.12,-size*.38);
-    ctx.lineTo(size*.12,-size*.38);
-    ctx.lineTo(size*.08,-size*.12);
-    ctx.lineTo(-size*.08,-size*.12);
-    ctx.closePath();
-    ctx.fill();
-
-    // Armor Plates
-    ctx.fillStyle=hurt?'#ffffff':'#334155';
-    ctx.fillRect(-size*.07,-size*.34,size*.14,size*.18);
-
-    // Head
-    ctx.fillStyle=hurt?'#ffffff':'#0f172a';
-    ctx.beginPath();
-    ctx.moveTo(-size*.07,-size*.42);
-    ctx.lineTo(size*.07,-size*.42);
-    ctx.lineTo(size*.05,-size*.52);
-    ctx.lineTo(-size*.05,-size*.52);
-    ctx.closePath();
-    ctx.fill();
-
-    // Visor
-    ctx.fillStyle=hurt?'#ffffff':(e.attack<0.2?'#ff2244':'#00f0ff');
-    ctx.fillRect(-size*.05,-size*.49,size*.10,size*.025);
-
-    // Shoulder Guards
-    ctx.fillStyle=hurt?'#ffffff':'#334155';
-    ctx.fillRect(-size*.17,-size*.36,size*.04,size*.22);
-    ctx.fillRect(size*.13,-size*.36,size*.04,size*.22);
-
-    ctx.restore();
-
-    // Health Bar
-    const bw=size*.38,bh=Math.max(3,size*.018);
-    ctx.fillStyle='rgba(0,0,0,.75)';ctx.fillRect(x-bw/2,y-size*.64,bw,bh);
-    ctx.fillStyle='#38ef7d';ctx.fillRect(x-bw/2,y-size*.64,bw*(e.hp/100),bh);
-  }
-
-  // Detailed Weapon Model
-  const bob=Math.sin(player.bob)*5;
-  const wx=W*.68,wy=H*.78+bob;
-  ctx.save();
-  ctx.translate(wx,wy);
-  ctx.rotate(-.05);
-
-  // Pistol Grip & Hand Guards
-  ctx.fillStyle='#0f172a';
-  ctx.fillRect(-15,25,26,65);
-  ctx.fillStyle='#1e293b';
-  for(let g=30;g<80;g+=8){ ctx.fillRect(-13,g,22,4); } // Grip texturing
-
-  // Detachable Ammo Magazine
-  ctx.fillStyle='#1e293b';
-  ctx.fillRect(15,30,22,55);
-  ctx.fillStyle='#0284c7'; // Ammo level window
-  ctx.fillRect(22,45,8,25);
-
-  // Lower Receiver Body
-  ctx.fillStyle='#1e293b';
-  ctx.fillRect(-35,5,90,30);
-
-  // Upper Receiver / Main Chassis
-  ctx.fillStyle='#334155';
-  ctx.fillRect(-45,-12,110,22);
-
-  // Ejection Port & Energy Core
-  ctx.fillStyle='#0f172a';
-  ctx.fillRect(0,-5,28,12);
-  ctx.fillStyle='#38bdf8';
-  ctx.fillRect(4,-2,20,6);
-
-  // Picatinny Optics Rail
-  ctx.fillStyle='#0f172a';
-  ctx.fillRect(-40,-17,105,5);
-  ctx.fillStyle='#475569';
-  for(let rx=-38;rx<60;rx+=6){ ctx.fillRect(rx,-17,3,5); } // Rail teeth
-
-  // Red Dot Holographic Sight
-  ctx.fillStyle='#0f172a';
-  ctx.fillRect(5,-30,30,13);
-  ctx.fillStyle='#0284c7';
-  ctx.fillRect(10,-28,20,9); // Lens glass
-  ctx.fillStyle='#38ef7d';
-  ctx.beginPath(); ctx.arc(20,-23,2,0,Math.PI*2); ctx.fill(); // Reticle dot
-
-  // Heat-Vented Barrel Shroud
-  ctx.fillStyle='#1e293b';
-  ctx.fillRect(65,-10,50,16);
-  ctx.fillStyle='#0f172a';
-  for(let vx=70;vx<105;vx+=9){ ctx.fillRect(vx,-6,5,8); } // Heat vents
-
-  // Extended Barrel & Tactical Muzzle Brake
-  ctx.fillStyle='#0f172a';
-  ctx.fillRect(115,-7,18,10);
-  ctx.fillStyle='#475569';
-  ctx.fillRect(122,-10,3,4); // Top ports
-  ctx.fillRect(128,-10,3,4);
-
-  // Underbarrel Tactical Laser Module
-  ctx.fillStyle='#0f172a';
-  ctx.fillRect(50,10,30,10);
-  ctx.fillStyle='#ef4444'; // Red laser diode
-  ctx.fillRect(80,13,3,4);
-
-  ctx.restore();
-
-  if(shootFlash>0){
-    ctx.fillStyle='rgba(56,189,248,.85)';
-    ctx.beginPath();ctx.arc(wx+132,wy-7,14+Math.random()*6,0,Math.PI*2);ctx.fill();
-    shootFlash-=.016;
-  }
-}
-
-function loop(now){
-  const dt=Math.min(.05,(now-last)/1000);last=now;
-  update(dt,now);
-  drawScene();
-  requestAnimationFrame(loop);
-}
-
-updateHUD();
-requestAnimationFrame(loop);
+  // initial setup
+  resetHole();
+  announce('Welcome to Fairway Apex — pick a line and swing.',1800);
 })();
 </script>
 </body>
